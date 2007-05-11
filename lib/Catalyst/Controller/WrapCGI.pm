@@ -1,4 +1,4 @@
-package CatalystX::Controller::WrapCGI;
+package Catalyst::Controller::WrapCGI;
 
 # AUTHOR: Matt S Trout, mst@shadowcatsystems.co.uk
 # Original development sponsored by http://www.altinity.com/
