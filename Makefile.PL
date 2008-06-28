@@ -9,6 +9,7 @@ requires 'parent';
 requires 'Task::Weaken';
 requires 'HTTP::Request::AsCGI';
 requires 'URI';
+requires 'File::Find::Rule';
 
 build_requires 'Test::More';
 

@@ -6,6 +6,9 @@ use parent 'Exporter';
 
 use Scalar::Util 'weaken';
 
+use vars '$c';
+our @EXPORT_OK = '$c';
+
 =head1 NAME
 
 CatalystX::GlobalContext - Export Catalyst Context

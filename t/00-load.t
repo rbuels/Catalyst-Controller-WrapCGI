@@ -1,0 +1,11 @@
+#!perl -T
+
+use Test::More tests => 3;
+
+BEGIN {
+	use_ok( 'Catalyst::Controller::WrapCGI' );
+	use_ok( 'Catalyst::Plugin::CGIBin' );
+	use_ok( 'CatalystX::GlobalContext' );
+}
+
+diag( "Testing Catalyst::Controller::WrapCGI $Catalyst::Controller::WrapCGI::VERSION, Perl $], $^X" );

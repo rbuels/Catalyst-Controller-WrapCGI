@@ -3,9 +3,16 @@ package Catalyst::Plugin::CGIBin;
 use strict;
 use warnings;
 
+use Class::C3;
+use URI::Escape;
+use File::Slurp 'slurp';
+use File::Find::Rule ();
+use Cwd;
+use Catalyst::Exception ();
+
 =head1 NAME
 
-Catalyst::Plugin::CGIBin - Server CGIs from root/cgi-bin
+Catalyst::Plugin::CGIBin - Serve CGIs from root/cgi-bin
 
 =head1 VERSION
 
@@ -15,29 +22,85 @@ Version 0.001
 
 our $VERSION = '0.001';
 
-
 =head1 SYNOPSIS
 
+In MyApp.pm:
+
+    use Catalyst;
+
+    __PACKAGE__->setup(qw/CGIBin/);
+
 In your .conf:
+
     <Plugin::CGIBin>
-        controller MyApp::Controller::Foo
+        controller Foo
     </Plugin::CGIBin>
 
-    <MyApp::Controller::Foo>
+    <Controller::Foo>
         <CGI>
             pass_env PERL5LIB
             pass_env PATH
         </CGI>
-    </MyApp::Controller::Foo>
+    </Controller::Foo>
 
 =head1 DESCRIPTION
 
-Dispatches to CGI files in root/cgi-bin through the configured controller, which
-must inherit from L<Catalyst::Controller::WrapCGI>.
-
-I still need to write the code :)
+Dispatches to executable CGI files in root/cgi-bin through the configured
+controller, which must inherit from L<Catalyst::Controller::WrapCGI>.
 
 =cut
+
+my ($cgi_controller, $cgis);
+
+sub setup {
+    my $app = shift;
+
+    my $cwd = getcwd;
+
+    my $cgi_bin = $app->path_to('root', 'cgi-bin');
+
+    chdir $cgi_bin ||
+        Catalyst::Exception->throw(
+            message => 'You have no root/cgi-bin directory'
+        );
+
+    $cgi_controller = $app->config->{'Plugin::CGIBin'}{controller} ||
+        Catalyst::Exception->throw(
+            message => 'You must configure a controller for Plugin::CGIBin'
+        );
+
+    for my $cgi (File::Find::Rule->executable->file->in(".")) {
+        my $code = do { no warnings; eval 'sub { '.slurp($cgi).' }' };
+        if (!$@) { # Perl source
+            $cgis->{$cgi} = $code;
+            undef $@;
+        } else { # some other type of executable
+            $cgis->{$cgi} = sub { system "$cgi_bin/$cgi" };
+        }
+    }
+
+    chdir $cwd;
+
+    $app->next::method(@_);
+}
+
+sub dispatch {
+    my $c = shift;
+    my $path = uri_unescape($c->req->path);
+
+    if ($path =~ m!^cgi-bin/(.*)!) {
+        my $cgi = $cgis->{$1};
+
+        if ($cgi) {
+            $c->controller($cgi_controller)->cgi_to_response(
+                $c, $cgi
+            );
+            return;
+        }
+    }
+
+    $c->next::method(@_);
+}
 
 =head1 AUTHOR
 

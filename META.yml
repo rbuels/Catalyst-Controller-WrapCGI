@@ -17,6 +17,7 @@ no_index:
     - t
 requires:
   Catalyst: 5.7007
+  File::Find::Rule: 0
   HTTP::Request::AsCGI: 0
   Task::Weaken: 0
   URI: 0

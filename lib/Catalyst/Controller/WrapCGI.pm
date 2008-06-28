@@ -38,6 +38,21 @@ our $VERSION = '0.001';
         });
     }
 
+In your .conf, configure which environment variables to pass:
+
+    <Controller::Foo>
+        <CGI>
+            pass_env PERL5LIB
+            pass_env PATH
+            pass_env HLAGH
+        </CGI>
+    </Controller::Foo>
+
+=head1 DESCRIPTION
+
+Allows you to run Perl code in a CGI environment derived from your L<Catalyst>
+context.
+
 =cut
 
 # Hack-around because Catalyst::Engine::HTTP goes and changes
@@ -52,6 +67,8 @@ open my $REAL_STDOUT, ">>&=".fileno(*STDOUT);
 
 Does the magic of running $coderef in a CGI environment, and populating the
 appropriate parts of your Catalyst context with the results.
+
+Calls wrap_cgi (below.)
 
 =cut
 
@@ -80,6 +97,10 @@ L<HTTP::Response>.
 
 The CGI environment is set up based on $c.
 
+The environment variables to pass on are taken from the configuration for your
+Controller, see L</SYNOPSIS> for an example. If you don't supply a list of
+environment variables to pass, the whole of %ENV is used.
+
 Used by cgi_to_response, which is probably what you want to use as well.
 
 =cut
@@ -106,6 +127,8 @@ sub wrap_cgi {
     }
   }
 
+  my @env = @{ $self->{CGI}{pass_env} || [ keys %ENV ] };
+
   $req->content($body_content);
   $req->content_length(length($body_content));
   my $user = (($c->can('user_exists') && $c->user_exists)
@@ -114,7 +137,7 @@ sub wrap_cgi {
   my $env = HTTP::Request::AsCGI->new(
               $req,
               REMOTE_USER => $user,
-              %ENV
+              map { ($_, $ENV{$_}) } @env
             );
 
   {
@@ -142,6 +165,11 @@ sub wrap_cgi {
 =head1 ACKNOWLEDGEMENTS
 
 Original development sponsored by L<http://www.altinity.com/>
+
+=head1 SEE ALSO
+
+L<Catalyst::Plugin::CGIBin>, L<CatalystX::GlobalContext>,
+L<Catalyst::Controller>, L<CGI>, L<Catalyst>
 
 =head1 AUTHOR
 
