@@ -9,7 +9,7 @@ use base 'Catalyst::Controller';
 
 use HTTP::Request::AsCGI;
 use HTTP::Request;
-use URI::Escape;
+use URI;
 
 # Hack-around because Catalyst::Engine::HTTP goes and changes
 # them to be the remote socket, and FCGI.pm does even dumber things.
@@ -24,7 +24,9 @@ sub cgi_to_response {
   # if the CGI doesn't set the response code but sets location they were
   # probably trying to redirect so set 302 for them
 
-  if (length($res->headers->header('Location')) && $res->code == 200) {
+  my $location = $res->headers->header('Location');
+
+  if (defined $location && length $location && $res->code == 200) {
     $c->res->status(302);
   } else { 
     $c->res->status($res->code);
@@ -47,31 +49,23 @@ sub wrap_cgi {
     local $/; $body_content = <$body>;
   } else {
     my $body_params = $c->req->body_parameters;
-    if (keys %$body_params) {
-      my @parts;
-      foreach my $key (keys %$body_params) {
-        my $raw = $body_params->{$key};
-        foreach my $value (ref $raw ? @$raw : ($raw)) {
-          push(@parts, join('=', map { uri_escape($_) } ($key, $value)));
-        }
-      }
-      $body_content = join('&', @parts);
+    if (%$body_params) {
+      my $encoder = URI->new;
+      $encoder->query_form(%$body_params);
+      $body_content = $encoder->query;
       $req->content_type('application/x-www-form-urlencoded');
     }
   }
 
-  #warn "Body type: ".$req->content_type;
-  #warn "Body: ${body_content}";
-      
   $req->content($body_content);
   $req->content_length(length($body_content));
   my $user = (($c->can('user_exists') && $c->user_exists)
-               ? $c->user_object->username
+               ? eval { $c->user->obj->username }
                 : '');
   my $env = HTTP::Request::AsCGI->new(
               $req,
               REMOTE_USER => $user,
-              PERL5LIB => $ENV{PERL5LIB}  # propagate custom perl lib paths
+              %ENV
             );
 
   {
