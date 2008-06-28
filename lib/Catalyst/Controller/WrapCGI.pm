@@ -1,21 +1,59 @@
 package Catalyst::Controller::WrapCGI;
 
-# AUTHOR: Matt S Trout, mst@shadowcatsystems.co.uk
-# Original development sponsored by http://www.altinity.com/
-
 use strict;
 use warnings;
-use base 'Catalyst::Controller';
+use parent 'Catalyst::Controller';
 
 use HTTP::Request::AsCGI;
 use HTTP::Request;
-use URI::Escape;
+use URI;
+
+=head1 NAME
+
+Catalyst::Controller::WrapCGI - Run CGIs in Catalyst
+
+=head1 VERSION
+
+Version 0.001
+
+=cut
+
+our $VERSION = '0.001';
+
+=head1 SYNOPSIS
+
+    package MyApp::Controller::Foo;
+
+    use parent qw/Catalyst::Controller::WrapCGI/;
+
+    sub hello : Path('cgi-bin/hello.cgi') {
+        my ($self, $c) = @_;
+
+        $self->cgi_to_response($c, sub {
+            use CGI ':standard';
+
+            print header, start_html('Hello'),
+                h1('Catalyst Rocks!'),
+                end_html;
+        });
+    }
+
+=cut
 
 # Hack-around because Catalyst::Engine::HTTP goes and changes
 # them to be the remote socket, and FCGI.pm does even dumber things.
 
-open(*REAL_STDIN, "<&=".fileno(*STDIN));
-open(*REAL_STDOUT, ">>&=".fileno(*STDOUT));
+open my $REAL_STDIN, "<&=".fileno(*STDIN);
+open my $REAL_STDOUT, ">>&=".fileno(*STDOUT);
+
+=head1 METHODS
+
+=head2 $self->cgi_to_response($c, $coderef)
+
+Does the magic of running $coderef in a CGI environment, and populating the
+appropriate parts of your Catalyst context with the results.
+
+=cut
 
 sub cgi_to_response {
   my ($self, $c, $script) = @_;
@@ -24,7 +62,9 @@ sub cgi_to_response {
   # if the CGI doesn't set the response code but sets location they were
   # probably trying to redirect so set 302 for them
 
-  if (length($res->headers->header('Location')) && $res->code == 200) {
+  my $location = $res->headers->header('Location');
+
+  if (defined $location && length $location && $res->code == 200) {
     $c->res->status(302);
   } else { 
     $c->res->status($res->code);
@@ -32,6 +72,17 @@ sub cgi_to_response {
   $c->res->body($res->content);
   $c->res->headers($res->headers);
 }
+
+=head2 $self->wrap_cgi($c, $coderef)
+
+Runs $coderef in a CGI environment using L<HTTP::Request::AsCGI>, returns an
+L<HTTP::Response>.
+
+The CGI environment is set up based on $c.
+
+Used by cgi_to_response, which is probably what you want to use as well.
+
+=cut
 
 sub wrap_cgi {
   my ($self, $c, $call) = @_;
@@ -47,38 +98,30 @@ sub wrap_cgi {
     local $/; $body_content = <$body>;
   } else {
     my $body_params = $c->req->body_parameters;
-    if (keys %$body_params) {
-      my @parts;
-      foreach my $key (keys %$body_params) {
-        my $raw = $body_params->{$key};
-        foreach my $value (ref $raw ? @$raw : ($raw)) {
-          push(@parts, join('=', map { uri_escape($_) } ($key, $value)));
-        }
-      }
-      $body_content = join('&', @parts);
+    if (%$body_params) {
+      my $encoder = URI->new;
+      $encoder->query_form(%$body_params);
+      $body_content = $encoder->query;
       $req->content_type('application/x-www-form-urlencoded');
     }
   }
 
-  #warn "Body type: ".$req->content_type;
-  #warn "Body: ${body_content}";
-      
   $req->content($body_content);
   $req->content_length(length($body_content));
   my $user = (($c->can('user_exists') && $c->user_exists)
-               ? $c->user_object->username
+               ? eval { $c->user->obj->username }
                 : '');
   my $env = HTTP::Request::AsCGI->new(
               $req,
               REMOTE_USER => $user,
-              PERL5LIB => $ENV{PERL5LIB}  # propagate custom perl lib paths
+              %ENV
             );
 
   {
-    local *STDIN = \*REAL_STDIN;   # restore the real ones so the filenos
-    local *STDOUT = \*REAL_STDOUT; # are 0 and 1 for the env setup
+    local *STDIN = $REAL_STDIN;   # restore the real ones so the filenos
+    local *STDOUT = $REAL_STDOUT; # are 0 and 1 for the env setup
 
-    my $old = select(REAL_STDOUT); # in case somebody just calls 'print'
+    my $old = select($REAL_STDOUT); # in case somebody just calls 'print'
 
     my $saved_error;
 
@@ -96,4 +139,55 @@ sub wrap_cgi {
   return $env->response;
 }
 
-1;
+=head1 ACKNOWLEDGEMENTS
+
+Original development sponsored by L<http://www.altinity.com/>
+
+=head1 AUTHOR
+
+Matt S. Trout, C<< <mst at shadowcat.co.uk> >>
+
+=head1 BUGS
+
+Please report any bugs or feature requests to C<bug-catalyst-controller-wrapcgi
+at rt.cpan.org>, or through the web interface at
+L<http://rt.cpan.org/NoAuth/ReportBug.html?Queue=Catalyst-Controller-WrapCGI>.
+I will be notified, and then you'll automatically be notified of progress on
+your bug as I make changes.
+
+=head1 SUPPORT
+
+More information at:
+
+=over 4
+
+=item * RT: CPAN's request tracker
+
+L<http://rt.cpan.org/NoAuth/Bugs.html?Dist=Catalyst-Controller-WrapCGI>
+
+=item * AnnoCPAN: Annotated CPAN documentation
+
+L<http://annocpan.org/dist/Catalyst-Controller-WrapCGI>
+
+=item * CPAN Ratings
+
+L<http://cpanratings.perl.org/d/Catalyst-Controller-WrapCGI>
+
+=item * Search CPAN
+
+L<http://search.cpan.org/dist/Catalyst-Controller-WrapCGI>
+
+=back
+
+=head1 COPYRIGHT & LICENSE
+
+Copyright (c) 2008 Matt S. Trout
+
+This program is free software; you can redistribute it and/or modify it
+under the same terms as Perl itself.
+
+=cut
+
+1; # End of Catalyst::Controller::WrapCGI
+
+# vim: expandtab shiftwidth=4 ts=4 tw=80:

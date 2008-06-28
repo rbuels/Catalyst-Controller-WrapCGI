@@ -1,0 +1,10 @@
+Changes
+MANIFEST
+Makefile.PL
+README
+lib/Catalyst/Controller/WrapCGI.pm
+lib/Catalyst/Plugin/CGIBin.pm
+lib/CatalystX/GlobalContext.pm
+t/00-load.t
+t/pod-coverage.t
+t/pod.t
