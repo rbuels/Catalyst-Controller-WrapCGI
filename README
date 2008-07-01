@@ -16,7 +16,7 @@ SUPPORT AND DOCUMENTATION
 After installing, you can find documentation for these modules with the
 perldoc command.
 
-    perldoc Catalyst::Plugin::CGIBin
+    perldoc Catalyst::Controller::CGIBin
     perldoc Catalyst::Controller::WrapCGI
     perldoc CatalystX::GlobalContext
 

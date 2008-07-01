@@ -7,6 +7,7 @@ use parent 'Catalyst::Controller';
 use HTTP::Request::AsCGI;
 use HTTP::Request;
 use URI;
+use Catalyst::Exception ();
 
 =head1 NAME
 
@@ -14,11 +15,11 @@ Catalyst::Controller::WrapCGI - Run CGIs in Catalyst
 
 =head1 VERSION
 
-Version 0.001
+Version 0.002
 
 =cut
 
-our $VERSION = '0.001';
+our $VERSION = '0.002';
 
 =head1 SYNOPSIS
 
@@ -42,9 +43,10 @@ In your .conf, configure which environment variables to pass:
 
     <Controller::Foo>
         <CGI>
+            username_field username # used for REMOTE_USER env var
             pass_env PERL5LIB
             pass_env PATH
-            pass_env HLAGH
+            pass_env /^MYAPP_/
         </CGI>
     </Controller::Foo>
 
@@ -52,6 +54,21 @@ In your .conf, configure which environment variables to pass:
 
 Allows you to run Perl code in a CGI environment derived from your L<Catalyst>
 context.
+
+If you just want to run CGIs from files, see L<Catalyst::Controller::CGIBin>.
+
+=head1 CONFIGURATION
+
+C<$your_controller->{CGI}{pass_env}> should be an array of environment variables
+or regular expressions to pass through to your CGIs. Entries surrounded by C</>
+characters are considered regular expressions.
+
+Default is to pass the whole of C<%ENV>.
+
+C<{CGI}{username_field}> should be the field for your user's name, which will be
+read from C<$c->user->obj>. Defaults to 'username'.
+
+See L</SYNOPSIS> for an example.
 
 =cut
 
@@ -101,7 +118,7 @@ The environment variables to pass on are taken from the configuration for your
 Controller, see L</SYNOPSIS> for an example. If you don't supply a list of
 environment variables to pass, the whole of %ENV is used.
 
-Used by cgi_to_response, which is probably what you want to use as well.
+Used by cgi_to_response (above), which is probably what you want to use as well.
 
 =cut
 
@@ -127,16 +144,30 @@ sub wrap_cgi {
     }
   }
 
-  my @env = @{ $self->{CGI}{pass_env} || [ keys %ENV ] };
+  my @env;
+
+  for (@{ $self->{CGI}{pass_env} }) {
+    if (m!^/(.*)/\z!) {
+      my $re = qr/$1/;
+      push @env, grep /$re/, keys %ENV;
+    } else {
+      push @env, $_;
+    }
+  }
+
+  @env = keys %ENV unless @env;
 
   $req->content($body_content);
   $req->content_length(length($body_content));
-  my $user = (($c->can('user_exists') && $c->user_exists)
-               ? eval { $c->user->obj->username }
+
+  my $username_field = $self->{CGI}{username_field} || 'username';
+
+  my $username = (($c->can('user_exists') && $c->user_exists)
+               ? eval { $c->user->obj->$username_field }
                 : '');
   my $env = HTTP::Request::AsCGI->new(
               $req,
-              REMOTE_USER => $user,
+              ($username ? (REMOTE_USER => $username) : ()),
               map { ($_, $ENV{$_}) } @env
             );
 
@@ -155,8 +186,9 @@ sub wrap_cgi {
 
     select($old);
 
-    warn "CGI invoke failed: $saved_error" if $saved_error;
-
+    Catalyst::Exception->throw(
+        message => "CGI invocation failed: $saved_error"
+    ) if $saved_error;
   }
 
   return $env->response;
@@ -168,7 +200,7 @@ Original development sponsored by L<http://www.altinity.com/>
 
 =head1 SEE ALSO
 
-L<Catalyst::Plugin::CGIBin>, L<CatalystX::GlobalContext>,
+L<Catalyst::Controller::CGIBin>, L<CatalystX::GlobalContext>,
 L<Catalyst::Controller>, L<CGI>, L<Catalyst>
 
 =head1 AUTHOR
@@ -218,4 +250,4 @@ under the same terms as Perl itself.
 
 1; # End of Catalyst::Controller::WrapCGI
 
-# vim: expandtab shiftwidth=4 ts=4 tw=80:
+# vim: expandtab shiftwidth=2 ts=2 tw=80:

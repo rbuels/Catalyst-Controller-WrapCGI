@@ -49,7 +49,7 @@ TODO: {
   );
 
   module_boilerplate_ok('lib/Catalyst/Controller/WrapCGI.pm');
-  module_boilerplate_ok('lib/Catalyst/Plugin/CGIBin.pm');
+  module_boilerplate_ok('lib/Catalyst/Controller/CGIBin.pm');
   module_boilerplate_ok('lib/CatalystX/GlobalContext.pm');
 
 

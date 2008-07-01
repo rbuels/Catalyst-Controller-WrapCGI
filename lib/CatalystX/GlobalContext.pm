@@ -43,16 +43,17 @@ our $VERSION = '0.01';
 
 =head1 DESCRIPTION
 
-This module, in combination with L<Catalyst::Controller::WrapCGI> is for helping
-you run legacy mod_perl code in L<Catalyst>.
+This module, in combination with L<Catalyst::Controller::WrapCGI> or
+L<Catalyst::Controller::CGIBin> is for helping you run legacy mod_perl code in
+L<Catalyst>.
 
 You save a copy of $c somewhere at the beginning of the request cycle, and it is
 then accessible through an export where you need it.
 
-You can then rip out Apache:: type things, and replace them with things based on
-$c.
+You can then rip out C<Apache::> type things, and replace them with things based on
+C<$c>.
 
-What we really need is a set of Apache:: compatibility classes, but that doesn't
+What we really need is a set of C<Apache::> compatibility classes, but that doesn't
 exist yet.
 
 DO NOT USE THIS MODULE IN NEW CODE
@@ -70,6 +71,11 @@ sub set_context {
     $c = $_[1];
     weaken $c;
 }
+
+=head1 SEE ALSO
+
+L<Catalyst::Controller::CGIBin>, L<Catalyst::Controller::WrapCGI>,
+L<Catalyst>
 
 =head1 AUTHOR
 
