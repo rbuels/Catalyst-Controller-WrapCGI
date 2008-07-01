@@ -54,6 +54,8 @@ In your .conf:
 
 Dispatches to executable CGI files in root/cgi-bin for /cgi-bin/ paths.
 
+CGI paths are converted into action names using cgi_action (below.)
+
 A path such as C<root/cgi-bin/hlagh/bar.cgi> will get the private path
 C<foo/CGI_hlagh_bar_cgi>, for controller Foo, with the C</>s converted to C<_>s
 and prepended with C<CGI_>, as well as all non-word characters converted to
@@ -66,18 +68,18 @@ module for configuration information.
 =cut
 
 sub register_actions {
-    my ($self, $c) = @_;
+    my ($self, $app) = @_;
 
     my $cwd = getcwd;
 
-    my $cgi_bin = $c->path_to('root', 'cgi-bin');
+    my $cgi_bin = $app->path_to('root', 'cgi-bin');
 
     chdir $cgi_bin ||
         Catalyst::Exception->throw(
             message => 'You have no root/cgi-bin directory'
         );
 
-    my $namespace = $self->action_namespace($c);
+    my $namespace = $self->action_namespace($app);
 
     my $class = ref $self || $self;
 
@@ -94,8 +96,8 @@ sub register_actions {
             undef $@;
         }
 
-        $c->log->info("Registering root/cgi_bin/$file as a $type CGI.")
-            if $c->debug;
+        $app->log->info("Registering root/cgi_bin/$file as a $type CGI.")
+            if $app->debug;
 
         my $action_name = $self->cgi_action($file);
         my $path        = join '/' => splitdir($file);
@@ -116,12 +118,12 @@ sub register_actions {
             attributes => $attrs
         );
 
-        $c->dispatcher->register($c, $action);
+        $app->dispatcher->register($app, $action);
     }
 
     chdir $cwd;
 
-    $self->next::method($c, @_);
+    $self->next::method($app, @_);
 }
 
 =head1 METHODS
