@@ -146,7 +146,11 @@ sub wrap_cgi {
 
   my @env;
 
-  for (@{ $self->{CGI}{pass_env} }) {
+  my $pass_env = $self->{CGI}{pass_env};
+  $pass_env = []            if not defined $pass_env;
+  $pass_env = [ $pass_env ] unless ref $pass_env;
+
+  for (@$pass_env) {
     if (m!^/(.*)/\z!) {
       my $re = qr/$1/;
       push @env, grep /$re/, keys %ENV;

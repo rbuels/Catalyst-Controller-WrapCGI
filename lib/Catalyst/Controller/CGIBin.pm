@@ -96,7 +96,7 @@ sub register_actions {
             undef $@;
         }
 
-        $app->log->info("Registering root/cgi_bin/$file as a $type CGI.")
+        $app->log->info("Registering root/cgi-bin/$file as a $type CGI.")
             if $app->debug;
 
         my $action_name = $self->cgi_action($file);
