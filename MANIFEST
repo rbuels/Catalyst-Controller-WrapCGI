@@ -25,8 +25,7 @@ t/lib/TestApp.pm
 t/lib/TestApp/Controller/Root.pm
 t/lib/TestCGIBin.pm
 t/lib/TestCGIBin/Controller/CGIHandler.pm
-t/lib/TestCGIBin/root/cgi-bin/test.pl
+t/lib/TestCGIBin/root/cgi-bin/path/test.pl
 t/lib/TestCGIBin/root/cgi-bin/test.sh
-t/pod-coverage.t
 t/pod.t
 t/wrap-cgi.t
