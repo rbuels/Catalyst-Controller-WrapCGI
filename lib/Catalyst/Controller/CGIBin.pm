@@ -9,7 +9,11 @@ use File::Slurp 'slurp';
 use File::Find::Rule ();
 use Cwd;
 use Catalyst::Exception ();
-use File::Spec::Functions 'splitdir';
+use File::Spec::Functions qw/splitdir abs2rel/;
+use IPC::Open3;
+use Symbol 'gensym';
+use List::MoreUtils 'any';
+use IO::File ();
 
 use parent 'Catalyst::Controller::WrapCGI';
 
@@ -52,7 +56,10 @@ In your .conf:
 
 =head1 DESCRIPTION
 
-Dispatches to executable CGI files in root/cgi-bin for /cgi-bin/ paths.
+Dispatches to CGI files in root/cgi-bin for /cgi-bin/ paths.
+
+Unlike L<ModPerl::Registry> this module does _NOT_ stat and recompile the CGI
+for every invocation. If this is something you need, let me know.
 
 CGI paths are converted into action names using cgi_action (below.)
 
@@ -70,41 +77,36 @@ module for configuration information.
 sub register_actions {
     my ($self, $app) = @_;
 
-    my $cwd = getcwd;
-
     my $cgi_bin = $app->path_to('root', 'cgi-bin');
-
-    chdir $cgi_bin ||
-        Catalyst::Exception->throw(
-            message => 'You have no root/cgi-bin directory'
-        );
 
     my $namespace = $self->action_namespace($app);
 
     my $class = ref $self || $self;
 
-    for my $file (File::Find::Rule->executable->file->in(".")) {
-        my ($cgi, $type);
-        my $code = do { no warnings; eval 'sub { '.slurp($file).' }' };
+    for my $file (File::Find::Rule->file->in($cgi_bin)) {
+        my $cgi_path = abs2rel($file, $cgi_bin);
 
-        if (!$@) {
-            $cgi = $code;
+        next if any { $_ eq '.svn' } splitdir $cgi_path;
+
+        my ($cgi, $type);
+
+        if ($self->is_perl_cgi($file)) { # syntax check passed
             $type = 'Perl';
+            $cgi  = $self->wrap_perl_cgi($file);
         } else {
-            $cgi = sub { system "$cgi_bin/$file" };
             $type = 'Non-Perl';
-            undef $@;
+            $cgi  = $self->wrap_nonperl_cgi($file);
         }
 
-        $app->log->info("Registering root/cgi-bin/$file as a $type CGI.")
+        $app->log->info("Registering root/cgi-bin/$cgi_path as a $type CGI.")
             if $app->debug;
 
-        my $action_name = $self->cgi_action($file);
-        my $path        = join '/' => splitdir($file);
+        my $path        = join '/' => splitdir($cgi_path);
+        my $action_name = $self->cgi_action($path);
         my $reverse     = $namespace ? "$namespace/$action_name" : $action_name;
         my $attrs       = { Path => [ "cgi-bin/$path" ], Args => [ 0 ] };
 
-        $code = sub {
+        my $code = sub {
             my ($controller, $context) = @_;
             $controller->cgi_to_response($context, $cgi)
         };
@@ -121,8 +123,6 @@ sub register_actions {
         $app->dispatcher->register($app, $action);
     }
 
-    chdir $cwd;
-
     $self->next::method($app, @_);
 }
 
@@ -131,18 +131,90 @@ sub register_actions {
 =head2 $self->cgi_action($cgi_path)
 
 Takes a path to a CGI from C<root/cgi-bin> such as C<foo/bar.cgi> and returns
-the action name it is registered as.
+the action name it is registered as. See L</DESCRIPTION> for a discussion on how
+CGI actions are named.
 
 =cut
 
 sub cgi_action {
     my ($self, $cgi) = @_;
 
-    my $action_name = 'CGI_' . join '_' => splitdir($cgi);
+    my $action_name = 'CGI_' . join '_' => split '/' => $cgi;
     $action_name    =~ s/\W/_/g;
 
     $action_name
 }
+
+=head2 $self->is_perl_cgi($path)
+
+Tries to figure out whether the CGI is Perl or not.
+
+If it's Perl, it will be inlined into a sub instead of being forked off, see
+wrap_perl_cgi (below.)
+
+If it's not doing what you expect, you might want to override it, and let me
+know as well!
+
+=cut
+
+sub is_perl_cgi {
+    my ($self, $cgi) = @_;
+
+    my $shebang = IO::File->new($cgi)->getline;
+
+    return 0 if $shebang !~ /perl/ || $cgi !~ /\.pl\z/;
+
+    my $taint_check = $shebang =~ /-T/ ?  '-T' : '';
+
+    open NULL, '>', File::Spec->devnull;
+    my $pid = open3(gensym, '&>NULL', '&>NULL', "$^X $taint_check -c $cgi");
+    close NULL;
+    waitpid $pid, 0;
+
+    $? >> 8 == 0
+}
+
+=head2 $self->wrap_perl_cgi($path)
+
+Takes the path to a Perl CGI and returns a coderef suitable for passing to
+cgi_to_response (from L<Catalyst::Controller::WrapCGI>.)
+
+By default returns:
+
+    eval 'sub {' . slurp($path) . '}'
+
+This is similar to how L<ModPerl::Registry> works, but will only work for
+well-written CGIs. Otherwise, you may have to override this method to do
+something more involved (see L<ModPerl::PerlRun>.)
+
+=cut
+
+sub wrap_perl_cgi {
+    my ($self, $cgi) = @_;
+
+    do { no warnings; eval 'sub {' . slurp($cgi) . '}' }
+}
+
+=head2 $self->wrap_nonperl_cgi($path)
+
+Takes the path to a non-Perl CGI and returns a coderef for executing it.
+
+By default returns:
+
+    sub { system $path }
+
+=cut
+
+sub wrap_nonperl_cgi {
+    my ($self, $cgi) = @_;
+
+    sub { system $cgi }
+}
+
+=head1 SEE ALSO
+
+L<Catalyst::Controller::WrapCGI>, L<CatalystX::GlobalContext>,
+L<Catalyst::Controller>, L<CGI>, L<Catalyst>
 
 =head1 AUTHOR
 

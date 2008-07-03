@@ -10,6 +10,8 @@ requires 'Task::Weaken';
 requires 'HTTP::Request::AsCGI';
 requires 'URI';
 requires 'File::Find::Rule';
+requires 'List::MoreUtils';
+requires 'File::Slurp';
 
 build_requires 'Test::More';
 

@@ -11,7 +11,7 @@ use Test::More tests => 4;
 use Catalyst::Test 'TestCGIBin';
 use HTTP::Request::Common;
 
-my $response = request POST '/cgi-bin/test.pl', [
+my $response = request POST '/cgi-bin/path/test.pl', [
     foo => 'bar',
     bar => 'baz'
 ];
