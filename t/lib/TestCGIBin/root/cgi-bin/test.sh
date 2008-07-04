@@ -1,5 +1,5 @@
 #!/bin/sh
 
-/bin/echo -e 'Content-Type: text/html; charset=ISO-8859-1\r\n'
+printf '%s\r\n' 'Content-Type: text/html; charset=ISO-8859-1'
 
 echo "Hello!"

@@ -24,4 +24,4 @@ requires:
   Task::Weaken: 0
   URI: 0
   parent: 0
-version: 0.002
+version: 0.0021

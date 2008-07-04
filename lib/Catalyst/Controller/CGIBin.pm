@@ -7,7 +7,6 @@ use Class::C3;
 use URI::Escape;
 use File::Slurp 'slurp';
 use File::Find::Rule ();
-use Cwd;
 use Catalyst::Exception ();
 use File::Spec::Functions qw/splitdir abs2rel/;
 use IPC::Open3;
