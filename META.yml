@@ -17,6 +17,7 @@ no_index:
     - t
 requires:
   Catalyst: 5.7007
+  Class::C3: 0
   File::Find::Rule: 0
   File::Slurp: 0
   HTTP::Request::AsCGI: 0
@@ -24,4 +25,4 @@ requires:
   Task::Weaken: 0
   URI: 0
   parent: 0
-version: 0.0021
+version: 0.0022

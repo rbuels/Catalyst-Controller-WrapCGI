@@ -5,6 +5,7 @@ all_from 'lib/Catalyst/Controller/WrapCGI.pm';
 author   'Matt S. Trout <mst@shadowcat.co.uk>';
 
 requires 'Catalyst' => '5.7007';
+requires 'Class::C3';
 requires 'parent';
 requires 'Task::Weaken';
 requires 'HTTP::Request::AsCGI';
