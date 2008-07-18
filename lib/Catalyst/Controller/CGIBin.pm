@@ -22,11 +22,11 @@ Catalyst::Controller::CGIBin - Serve CGIs from root/cgi-bin
 
 =head1 VERSION
 
-Version 0.001
+Version 0.002
 
 =cut
 
-our $VERSION = '0.001';
+our $VERSION = '0.002';
 
 =head1 SYNOPSIS
 
@@ -161,7 +161,7 @@ sub is_perl_cgi {
 
     my $shebang = IO::File->new($cgi)->getline;
 
-    return 0 if $shebang !~ /perl/ || $cgi !~ /\.pl\z/;
+    return 0 if $shebang !~ /perl/ && $cgi !~ /\.pl\z/;
 
     my $taint_check = $shebang =~ /-T/ ?  '-T' : '';
 
