@@ -22,11 +22,11 @@ Catalyst::Controller::CGIBin - Serve CGIs from root/cgi-bin
 
 =head1 VERSION
 
-Version 0.002
+Version 0.003
 
 =cut
 
-our $VERSION = '0.002';
+our $VERSION = '0.003';
 
 =head1 SYNOPSIS
 
@@ -87,23 +87,23 @@ sub register_actions {
 
         next if any { $_ eq '.svn' } splitdir $cgi_path;
 
-        my ($cgi, $type);
-
-        if ($self->is_perl_cgi($file)) { # syntax check passed
-            $type = 'Perl';
-            $cgi  = $self->wrap_perl_cgi($file);
-        } else {
-            $type = 'Non-Perl';
-            $cgi  = $self->wrap_nonperl_cgi($file);
-        }
-
-        $app->log->info("Registering root/cgi-bin/$cgi_path as a $type CGI.")
-            if $app->debug;
-
         my $path        = join '/' => splitdir($cgi_path);
         my $action_name = $self->cgi_action($path);
         my $reverse     = $namespace ? "$namespace/$action_name" : $action_name;
         my $attrs       = { Path => [ "cgi-bin/$path" ], Args => [ 0 ] };
+
+        my ($cgi, $type);
+
+        if ($self->is_perl_cgi($file)) { # syntax check passed
+            $type = 'Perl';
+            $cgi  = $self->wrap_perl_cgi($file, $action_name);
+        } else {
+            $type = 'Non-Perl';
+            $cgi  = $self->wrap_nonperl_cgi($file, $action_name);
+        }
+
+        $app->log->info("Registering root/cgi-bin/$cgi_path as a $type CGI.")
+            if $app->debug;
 
         my $code = sub {
             my ($controller, $context) = @_;
@@ -173,14 +173,12 @@ sub is_perl_cgi {
     $? >> 8 == 0
 }
 
-=head2 $self->wrap_perl_cgi($path)
+=head2 $self->wrap_perl_cgi($path, $action_name)
 
 Takes the path to a Perl CGI and returns a coderef suitable for passing to
 cgi_to_response (from L<Catalyst::Controller::WrapCGI>.)
 
-By default returns:
-
-    eval 'sub {' . slurp($path) . '}'
+C<$action_name> is the generated name for the action representing the CGI file.
 
 This is similar to how L<ModPerl::Registry> works, but will only work for
 well-written CGIs. Otherwise, you may have to override this method to do
@@ -189,14 +187,22 @@ something more involved (see L<ModPerl::PerlRun>.)
 =cut
 
 sub wrap_perl_cgi {
-    my ($self, $cgi) = @_;
+    my ($self, $cgi, $action_name) = @_;
 
-    do { no warnings; eval 'sub {' . slurp($cgi) . '}' }
+    do {
+        no warnings;
+# CGIs import stuff, so putting them into this package breaks Cat 5.8
+        eval ' 
+            package Catalyst::Controller::CGIBin::_CGIs_::'.$action_name.';
+            sub {' . slurp($cgi) . '}'
+    }
 }
 
-=head2 $self->wrap_nonperl_cgi($path)
+=head2 $self->wrap_nonperl_cgi($path, $action_name)
 
 Takes the path to a non-Perl CGI and returns a coderef for executing it.
+
+C<$action_name> is the generated name for the action representing the CGI file.
 
 By default returns:
 
@@ -205,7 +211,7 @@ By default returns:
 =cut
 
 sub wrap_nonperl_cgi {
-    my ($self, $cgi) = @_;
+    my ($self, $cgi, $action_name) = @_;
 
     sub { system $cgi }
 }

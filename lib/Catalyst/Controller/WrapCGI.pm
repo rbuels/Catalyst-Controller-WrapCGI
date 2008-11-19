@@ -15,27 +15,27 @@ Catalyst::Controller::WrapCGI - Run CGIs in Catalyst
 
 =head1 VERSION
 
-Version 0.0023
+Version 0.0024
 
 =cut
 
-our $VERSION = '0.0023';
+our $VERSION = '0.0024';
 
 =head1 SYNOPSIS
 
     package MyApp::Controller::Foo;
 
     use parent qw/Catalyst::Controller::WrapCGI/;
+    use CGI ();
 
     sub hello : Path('cgi-bin/hello.cgi') {
         my ($self, $c) = @_;
 
         $self->cgi_to_response($c, sub {
-            use CGI ':standard';
-
-            print header, start_html('Hello'),
-                h1('Catalyst Rocks!'),
-                end_html;
+            my $q = CGI->new;
+            print $q->header, $q->start_html('Hello'),
+                $q->h1('Catalyst Rocks!'),
+                $q->end_html;
         });
     }
 
@@ -54,6 +54,9 @@ In your .conf, configure which environment variables to pass:
 
 Allows you to run Perl code in a CGI environment derived from your L<Catalyst>
 context.
+
+B<*WARNING*>: do not export L<CGI> functions into a Controller, it will break
+with L<Catalyst> 5.8 onward.
 
 If you just want to run CGIs from files, see L<Catalyst::Controller::CGIBin>.
 
