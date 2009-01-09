@@ -4,7 +4,6 @@ use strict;
 use warnings;
 
 use Class::C3;
-use URI::Escape;
 use File::Slurp 'slurp';
 use File::Find::Rule ();
 use Catalyst::Exception ();
@@ -13,6 +12,7 @@ use IPC::Open3;
 use Symbol 'gensym';
 use List::MoreUtils 'any';
 use IO::File ();
+use namespace::clean -except => 'meta';
 
 use parent 'Catalyst::Controller::WrapCGI';
 
@@ -22,11 +22,11 @@ Catalyst::Controller::CGIBin - Serve CGIs from root/cgi-bin
 
 =head1 VERSION
 
-Version 0.003
+Version 0.004
 
 =cut
 
-our $VERSION = '0.003';
+our $VERSION = '0.004';
 
 =head1 SYNOPSIS
 
@@ -123,6 +123,11 @@ sub register_actions {
     }
 
     $self->next::method($app, @_);
+
+# Tell Static::Simple to ignore the cgi-bin dir.
+    if (!any{ $_ eq 'cgi-bin' } @{ $app->config->{static}{ignore_dirs}||[] }) {
+        push @{ $app->config->{static}{ignore_dirs} }, 'cgi-bin';
+    }
 }
 
 =head1 METHODS

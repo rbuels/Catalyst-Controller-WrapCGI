@@ -3,6 +3,7 @@ abstract: 'Run CGIs in Catalyst'
 author:
   - 'Matt S. Trout <mst@shadowcat.co.uk>'
 build_requires:
+  Catalyst::Plugin::Static::Simple: 0
   Test::More: 0
 distribution_type: module
 generated_by: 'Module::Install version 0.77'
@@ -27,4 +28,4 @@ requires:
   parent: 0
 resources:
   license: http://dev.perl.org/licenses/
-version: 0.0024
+version: 0.0025
