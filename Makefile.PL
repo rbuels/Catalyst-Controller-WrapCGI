@@ -14,6 +14,7 @@ requires 'URI';
 requires 'File::Find::Rule';
 requires 'List::MoreUtils';
 requires 'File::Slurp';
+requires 'namespace::clean';
 
 test_requires 'Catalyst::Plugin::Static::Simple';
 

@@ -15,11 +15,11 @@ Catalyst::Controller::WrapCGI - Run CGIs in Catalyst
 
 =head1 VERSION
 
-Version 0.0025
+Version 0.0026
 
 =cut
 
-our $VERSION = '0.0025';
+our $VERSION = '0.0026';
 
 =head1 SYNOPSIS
 
