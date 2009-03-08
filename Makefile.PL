@@ -6,7 +6,7 @@ author   'Matt S. Trout <mst@shadowcat.co.uk>';
 include  'Module::AutoInstall';
 
 requires 'Catalyst' => '5.7007';
-requires 'Class::C3';
+requires 'Class::C3' => '0.20';
 requires 'parent';
 requires 'Task::Weaken';
 requires 'HTTP::Request::AsCGI';
