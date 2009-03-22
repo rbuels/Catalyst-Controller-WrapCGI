@@ -14,3 +14,8 @@ Revision history for Catalyst-Controller-WrapCGI
 
 0.0025  2009-01-09 14:59:20
     Tell Static::Simple to ignore root/cgi-bin for C::C::CGIBin
+
+0.0026  UNRELEASED
+    Stop storing generated files in SVN and add svn:ignore.
+    Remove taint from tests as this breaks in a local::lib environment
+    as PERL5LIB is stripped.
