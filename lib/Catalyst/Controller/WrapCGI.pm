@@ -47,6 +47,7 @@ In your .conf, configure which environment variables to pass:
             pass_env PERL5LIB
             pass_env PATH
             pass_env /^MYAPP_/
+            kill_env MOD_PERL
         </CGI>
     </Controller::Foo>
 
@@ -62,14 +63,20 @@ If you just want to run CGIs from files, see L<Catalyst::Controller::CGIBin>.
 
 =head1 CONFIGURATION
 
-C<$your_controller->{CGI}{pass_env}> should be an array of environment variables
+C<< $your_controller->{CGI}{pass_env} >> should be an array of environment variables
 or regular expressions to pass through to your CGIs. Entries surrounded by C</>
 characters are considered regular expressions.
 
-Default is to pass the whole of C<%ENV>.
+C<< $your_controller->{CGI}{kill_env} >> should be an array of environment
+variables or regular expressions to remove from the environment before passing
+it to your CGIs.  Entries surrounded by C</> characters are considered regular
+expressions.
 
-C<{CGI}{username_field}> should be the field for your user's name, which will be
-read from C<$c->user->obj>. Defaults to 'username'.
+Default is to pass the whole of C<%ENV>, except for C<MOD_PERL> (that is, the
+default C<kill_env> is C<[ 'MOD_PERL' ]>.
+
+C<< $your_controller->{CGI}{username_field} >> should be the field for your user's name, which will be
+read from C<< $c->user->obj >>. Defaults to 'username'.
 
 See L</SYNOPSIS> for an example.
 
@@ -125,6 +132,42 @@ Used by cgi_to_response (above), which is probably what you want to use as well.
 
 =cut
 
+sub _filtered_env {
+  my ($self, $env) = @_;
+  my @ok;
+
+  my $pass_env = $self->{CGI}{pass_env};
+  $pass_env = []            if not defined $pass_env;
+  $pass_env = [ $pass_env ] unless ref $pass_env;
+
+  my $kill_env = $self->{CGI}{kill_env};
+  $kill_env = [ 'MOD_PERL' ] unless defined $kill_env;
+  $kill_env = [ $kill_env ]  unless ref $kill_env;
+
+  if (@$pass_env) {
+    for (@$pass_env) {
+      if (m!^/(.*)/\z!) {
+        my $re = qr/$1/;
+        push @ok, grep /$re/, keys %$env;
+      } else {
+        push @ok, $_;
+      }
+    }
+  } else {
+    @ok = keys %$env;
+  }
+
+  for my $k (@$kill_env) {
+    if ($k =~ m!^/(.*)/\z!) {
+      my $re = qr/$1/;
+      @ok = grep { ! /$re/ } @ok;
+    } else {
+      @ok = grep { $_ ne $k } @ok;
+    }
+  }
+  return { map {; $_ => $env->{$_} } @ok };
+}
+
 sub wrap_cgi {
   my ($self, $c, $call) = @_;
   my $req = HTTP::Request->new(
@@ -147,22 +190,7 @@ sub wrap_cgi {
     }
   }
 
-  my @env;
-
-  my $pass_env = $self->{CGI}{pass_env};
-  $pass_env = []            if not defined $pass_env;
-  $pass_env = [ $pass_env ] unless ref $pass_env;
-
-  for (@$pass_env) {
-    if (m!^/(.*)/\z!) {
-      my $re = qr/$1/;
-      push @env, grep /$re/, keys %ENV;
-    } else {
-      push @env, $_;
-    }
-  }
-
-  @env = keys %ENV unless @env;
+  my $filtered_env = $self->_filtered_env(\%ENV);
 
   $req->content($body_content);
   $req->content_length(length($body_content));
@@ -175,7 +203,7 @@ sub wrap_cgi {
   my $env = HTTP::Request::AsCGI->new(
               $req,
               ($username ? (REMOTE_USER => $username) : ()),
-              map { ($_, $ENV{$_}) } @env
+              %$filtered_env,
             );
 
   {
