@@ -6,6 +6,8 @@ use Catalyst::Controller::WrapCGI;
 
 my $obj = Catalyst::Controller::WrapCGI->new;
 
+delete $ENV{MOD_PERL};
+
 my $want = {%ENV};
 my $have = {%ENV};
 {

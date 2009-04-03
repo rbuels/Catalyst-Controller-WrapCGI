@@ -20,5 +20,5 @@ Revision history for Catalyst-Controller-WrapCGI
     Remove taint from tests as this breaks in a local::lib environment
     as PERL5LIB is stripped.
 
-0.0027
+0.0027  2009-04-03 14:55:34
     Add 'kill_env' and default to killing 'MOD_PERL' from environment.

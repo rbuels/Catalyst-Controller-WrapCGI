@@ -22,11 +22,11 @@ Catalyst::Controller::CGIBin - Serve CGIs from root/cgi-bin
 
 =head1 VERSION
 
-Version 0.004
+Version 0.005
 
 =cut
 
-our $VERSION = '0.004';
+our $VERSION = '0.005';
 
 =head1 SYNOPSIS
 
@@ -196,7 +196,6 @@ sub wrap_perl_cgi {
 
     do {
         no warnings;
-# CGIs import stuff, so putting them into this package breaks Cat 5.8
         eval ' 
             package Catalyst::Controller::CGIBin::_CGIs_::'.$action_name.';
             sub {' . slurp($cgi) . '}'

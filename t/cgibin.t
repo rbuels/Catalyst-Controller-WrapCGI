@@ -11,6 +11,9 @@ use Test::More tests => 4;
 use Catalyst::Test 'TestCGIBin';
 use HTTP::Request::Common;
 
+# this should be ignored
+$ENV{MOD_PERL} = "mod_perl/2.0";
+
 my $response = request POST '/cgi-bin/path/test.pl', [
     foo => 'bar',
     bar => 'baz'

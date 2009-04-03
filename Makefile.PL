@@ -18,7 +18,7 @@ requires 'namespace::clean';
 
 test_requires 'Catalyst::Plugin::Static::Simple';
 
-build_requires 'Test::More';
+build_requires 'Test::More' => '0.86';
 
 auto_install;
 
