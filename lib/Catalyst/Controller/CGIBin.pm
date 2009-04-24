@@ -3,7 +3,8 @@ package Catalyst::Controller::CGIBin;
 use strict;
 use warnings;
 
-use Class::C3;
+use MRO::Compat;
+use mro 'c3';
 use File::Slurp 'slurp';
 use File::Find::Rule ();
 use Catalyst::Exception ();
@@ -12,6 +13,7 @@ use IPC::Open3;
 use Symbol 'gensym';
 use List::MoreUtils 'any';
 use IO::File ();
+use Carp;
 use namespace::clean -except => 'meta';
 
 use parent 'Catalyst::Controller::WrapCGI';
@@ -22,11 +24,11 @@ Catalyst::Controller::CGIBin - Serve CGIs from root/cgi-bin
 
 =head1 VERSION
 
-Version 0.005
+Version 0.006
 
 =cut
 
-our $VERSION = '0.005';
+our $VERSION = '0.006';
 
 =head1 SYNOPSIS
 
@@ -194,12 +196,25 @@ something more involved (see L<ModPerl::PerlRun>.)
 sub wrap_perl_cgi {
     my ($self, $cgi, $action_name) = @_;
 
-    do {
+    my $code = slurp $cgi;
+
+    $code =~ s/^__DATA__\r?\n(.*)//ms;
+    my $data = $1;
+
+    my $coderef = do {
         no warnings;
         eval ' 
             package Catalyst::Controller::CGIBin::_CGIs_::'.$action_name.';
-            sub {' . slurp($cgi) . '}'
-    }
+            sub {'
+                . 'local *DATA;'
+                . q{open DATA, '<', \$data;}
+                . $code
+         . '}';
+    };
+
+    croak __PACKAGE__ . ": Could not compile $cgi to coderef: $@" if $@;
+
+    $coderef
 }
 
 =head2 $self->wrap_nonperl_cgi($path, $action_name)

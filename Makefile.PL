@@ -6,7 +6,6 @@ author   'Matt S. Trout <mst@shadowcat.co.uk>';
 include  'Module::AutoInstall';
 
 requires 'Catalyst' => '5.7007';
-requires 'Class::C3' => '0.20';
 requires 'parent';
 requires 'Task::Weaken';
 requires 'HTTP::Request::AsCGI';
@@ -15,6 +14,13 @@ requires 'File::Find::Rule';
 requires 'List::MoreUtils';
 requires 'File::Slurp';
 requires 'namespace::clean';
+
+requires 'MRO::Compat';
+
+if($] < 5.009_005) {
+    requires 'Class::C3::XS' => '0.08';
+    requires 'Class::C3' => '0.20';
+}
 
 test_requires 'Catalyst::Plugin::Static::Simple';
 

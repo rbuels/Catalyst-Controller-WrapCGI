@@ -22,3 +22,6 @@ Revision history for Catalyst-Controller-WrapCGI
 
 0.0027  2009-04-03 14:55:34
     Add 'kill_env' and default to killing 'MOD_PERL' from environment.
+
+0.0028  2009-04-24 04:40:39
+    Add support for __DATA__ sections in cgis for C::CGIBin
