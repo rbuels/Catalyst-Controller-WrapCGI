@@ -2,6 +2,11 @@ package TestCGIBin::Controller::CGIHandler;
 
 use parent 'Catalyst::Controller::CGIBin';
 
+sub cgi_path {
+    my ($self, $cgi) = @_;
+    return "my-bin/$cgi";
+}
+
 # try out a forward
 sub dongs : Local Args(0) {
     my ($self, $c) = @_;

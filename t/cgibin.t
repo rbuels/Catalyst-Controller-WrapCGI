@@ -14,7 +14,7 @@ use HTTP::Request::Common;
 # this should be ignored
 $ENV{MOD_PERL} = "mod_perl/2.0";
 
-my $response = request POST '/cgi-bin/path/test.pl', [
+my $response = request POST '/my-bin/path/test.pl', [
     foo => 'bar',
     bar => 'baz'
 ];
@@ -41,5 +41,5 @@ SKIP: {
     skip "Can't run shell scripts on non-*nix", 1
         if $^O eq 'MSWin32' || $^O eq 'VMS';
 
-    is(get('/cgi-bin/test.sh'), "Hello!\n", 'Non-Perl CGI File');
+    is(get('/my-bin/test.sh'), "Hello!\n", 'Non-Perl CGI File');
 }

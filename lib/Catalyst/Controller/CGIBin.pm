@@ -91,8 +91,9 @@ sub register_actions {
 
         my $path        = join '/' => splitdir($cgi_path);
         my $action_name = $self->cgi_action($path);
+        my $public_path = $self->cgi_path($path);
         my $reverse     = $namespace ? "$namespace/$action_name" : $action_name;
-        my $attrs       = { Path => [ "cgi-bin/$path" ], Args => [ 0 ] };
+        my $attrs       = { Path => [ $public_path ], Args => [ 0 ] };
 
         my ($cgi, $type);
 
@@ -134,7 +135,7 @@ sub register_actions {
 
 =head1 METHODS
 
-=head2 $self->cgi_action($cgi_path)
+=head2 $self->cgi_action($cgi)
 
 Takes a path to a CGI from C<root/cgi-bin> such as C<foo/bar.cgi> and returns
 the action name it is registered as. See L</DESCRIPTION> for a discussion on how
@@ -149,6 +150,20 @@ sub cgi_action {
     $action_name    =~ s/\W/_/g;
 
     $action_name
+}
+
+=head2 $self->cgi_path($cgi)
+
+Takes a path to a CGI from C<root/cgi-bin> such as C<foo/bar.cgi> and returns
+the public path it should be registered under.
+
+The default is C<cgi-bin/$cgi>.
+
+=cut
+
+sub cgi_path {
+    my ($self, $cgi) = @_;
+    return "cgi-bin/$cgi";
 }
 
 =head2 $self->is_perl_cgi($path)

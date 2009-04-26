@@ -25,3 +25,6 @@ Revision history for Catalyst-Controller-WrapCGI
 
 0.0028  2009-04-24 04:40:39
     Add support for __DATA__ sections in cgis for C::CGIBin
+
+0.0029
+    Allow more control over public paths to CGIBin actions.
