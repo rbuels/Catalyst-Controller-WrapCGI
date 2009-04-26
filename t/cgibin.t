@@ -50,7 +50,7 @@ $response = request POST '/cgihandler/mtfnpy', [
 is($response->content, 'foo:bar bar:baz',
     'POST to Perl CGI File through a forward via cgi_action');
 
-$response = request '/cgi-bin/path/testdata.pl';
+$response = request '/my-bin/path/testdata.pl';
 is($response->content, "testing\n",
     'scripts with __DATA__ sections work');
 
