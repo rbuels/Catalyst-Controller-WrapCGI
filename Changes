@@ -28,3 +28,6 @@ Revision history for Catalyst-Controller-WrapCGI
 
 0.0029
     Allow more control over public paths to CGIBin actions.
+    Override exit() in CGIBin-wrapped Perl cgis to avoid terminating the
+    Catalyst process.
+    Set (temporarily) $0 to the filename of the Perl cgi being executed.

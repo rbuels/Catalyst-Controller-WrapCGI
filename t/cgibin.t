@@ -6,7 +6,7 @@ use warnings;
 use FindBin '$Bin';
 use lib "$Bin/lib";
 
-use Test::More tests => 4;
+use Test::More tests => 6;
 
 use Catalyst::Test 'TestCGIBin';
 use HTTP::Request::Common;
@@ -20,6 +20,19 @@ my $response = request POST '/my-bin/path/test.pl', [
 ];
 
 is($response->content, 'foo:bar bar:baz', 'POST to Perl CGI File');
+
+$response = request POST '/my-bin/exit.pl', [
+    name => 'world',
+];
+
+is($response->content, 'hello world', 'POST to Perl CGI with exit()');
+
+$response = request POST '/my-bin/exit.pl', [
+    name => 'world',
+    exit => 17,
+];
+
+is($response->code, 500, 'POST to Perl CGI with nonzero exit()');
 
 $response = request POST '/cgihandler/dongs', [
     foo => 'bar',

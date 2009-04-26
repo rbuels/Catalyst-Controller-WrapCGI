@@ -218,12 +218,33 @@ sub wrap_perl_cgi {
 
     my $coderef = do {
         no warnings;
+        # catch exit() and turn it into (effectively) a return
+        # we *must* eval STRING because the code needs to be compiled with the
+        # overridden CORE::GLOBAL::exit in view
+        #
+        # set $0 to the name of the cgi file in case it's used there
         eval ' 
+            my $cgi_exited = "EXIT\n";
+            BEGIN { *CORE::GLOBAL::exit = sub (;$) {
+                die [ $cgi_exited, $_[0] || 0 ];
+            } }
             package Catalyst::Controller::CGIBin::_CGIs_::'.$action_name.';
             sub {'
                 . 'local *DATA;'
                 . q{open DATA, '<', \$data;}
+                . qq{local \$0 = "\Q$cgi\E";}
+                . q/my $rv = eval {/
                 . $code
+                . q/};/
+                . q{
+                    return $rv unless $@;
+                    die $@ if $@ and not (
+                      ref($@) eq 'ARRAY' and
+                      $@->[0] eq $cgi_exited
+                    );
+                    die "exited nonzero: $@->[1]" if $@->[1] != 0;
+                    return $rv;
+                }
          . '}';
     };
 
