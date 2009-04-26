@@ -6,7 +6,7 @@ use warnings;
 use FindBin '$Bin';
 use lib "$Bin/lib";
 
-use Test::More tests => 6;
+use Test::More tests => 7;
 
 use Catalyst::Test 'TestCGIBin';
 use HTTP::Request::Common;
@@ -49,6 +49,10 @@ $response = request POST '/cgihandler/mtfnpy', [
 
 is($response->content, 'foo:bar bar:baz',
     'POST to Perl CGI File through a forward via cgi_action');
+
+$response = request '/cgi-bin/path/testdata.pl';
+is($response->content, "testing\n",
+    'scripts with __DATA__ sections work');
 
 SKIP: {
     skip "Can't run shell scripts on non-*nix", 1

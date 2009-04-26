@@ -10,7 +10,7 @@ sub cgi_path {
 # try out a forward
 sub dongs : Local Args(0) {
     my ($self, $c) = @_;
-    $c->forward('/cgihandler/CGI_path_test_pl');
+    $c->forward('/cgihandler/CGI_path__test_pl');
 }
 
 # try resolved forward

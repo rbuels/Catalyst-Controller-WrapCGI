@@ -24,11 +24,11 @@ Catalyst::Controller::CGIBin - Serve CGIs from root/cgi-bin
 
 =head1 VERSION
 
-Version 0.006
+Version 0.007
 
 =cut
 
-our $VERSION = '0.006';
+our $VERSION = '0.007';
 
 =head1 SYNOPSIS
 
@@ -63,12 +63,6 @@ Unlike L<ModPerl::Registry> this module does _NOT_ stat and recompile the CGI
 for every invocation. If this is something you need, let me know.
 
 CGI paths are converted into action names using cgi_action (below.)
-
-A path such as C<root/cgi-bin/hlagh/bar.cgi> will get the private path
-C<foo/CGI_hlagh_bar_cgi>, for controller Foo, with the C</>s converted to C<_>s
-and prepended with C<CGI_>, as well as all non-word characters converted to
-C<_>s. This is because L<Catalyst> action names can't have non-word characters
-in them.
 
 Inherits from L<Catalyst::Controller::WrapCGI>, see the documentation for that
 module for configuration information.
@@ -141,12 +135,21 @@ Takes a path to a CGI from C<root/cgi-bin> such as C<foo/bar.cgi> and returns
 the action name it is registered as. See L</DESCRIPTION> for a discussion on how
 CGI actions are named.
 
+A path such as C<root/cgi-bin/hlagh/bar.cgi> will get the private path
+C<foo/CGI_hlagh__bar_cgi>, for controller Foo, with the C</>s converted to C<__>
+and prepended with C<CGI_>, as well as all non-word characters converted to
+C<_>s. This is because L<Catalyst> action names can't have non-word characters
+in them.
+
+This means that C<foo/bar.cgi> and C<foo__bar.cgi> for example will both map to
+the action C<CGI_foo__bar_cgi> so B<DON'T DO THAT>.
+
 =cut
 
 sub cgi_action {
     my ($self, $cgi) = @_;
 
-    my $action_name = 'CGI_' . join '_' => split '/' => $cgi;
+    my $action_name = 'CGI_' . join '__' => split '/' => $cgi;
     $action_name    =~ s/\W/_/g;
 
     $action_name
@@ -200,11 +203,14 @@ sub is_perl_cgi {
 Takes the path to a Perl CGI and returns a coderef suitable for passing to
 cgi_to_response (from L<Catalyst::Controller::WrapCGI>.)
 
-C<$action_name> is the generated name for the action representing the CGI file.
+C<$action_name> is the generated name for the action representing the CGI file
+from C<cgi_action>.
 
 This is similar to how L<ModPerl::Registry> works, but will only work for
 well-written CGIs. Otherwise, you may have to override this method to do
 something more involved (see L<ModPerl::PerlRun>.)
+
+Scripts with C<__DATA__> sections now work too.
 
 =cut
 
@@ -213,7 +219,7 @@ sub wrap_perl_cgi {
 
     my $code = slurp $cgi;
 
-    $code =~ s/^__DATA__\r?\n(.*)//ms;
+    $code =~ s/^__DATA__(?:\r?\n|\r\n?)(.*)//ms;
     my $data = $1;
 
     my $coderef = do {
