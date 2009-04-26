@@ -1,10 +1,10 @@
 package Catalyst::Controller::CGIBin;
 
-use strict;
-use warnings;
-
-use MRO::Compat;
+use Moose;
 use mro 'c3';
+
+extends 'Catalyst::Controller::WrapCGI';
+
 use File::Slurp 'slurp';
 use File::Find::Rule ();
 use Catalyst::Exception ();
@@ -15,8 +15,6 @@ use List::MoreUtils 'any';
 use IO::File ();
 use Carp;
 use namespace::clean -except => 'meta';
-
-use parent 'Catalyst::Controller::WrapCGI';
 
 =head1 NAME
 
@@ -39,7 +37,7 @@ In your controller:
     use parent qw/Catalyst::Controller::CGIBin/;
 
     # example of a forward to /cgi-bin/hlagh/mtfnpy.cgi
-    sub dongs : Local Args(0) {
+    sub serve_cgi : Local Args(0) {
         my ($self, $c) = @_;
         $c->forward($self->cgi_action('hlagh/mtfnpy.cgi'));
     }
@@ -47,6 +45,7 @@ In your controller:
 In your .conf:
 
     <Controller::Foo>
+        cgi_root_path cgi-bin
         <CGI>
             username_field username # used for REMOTE_USER env var
             pass_env PERL5LIB
@@ -68,6 +67,8 @@ Inherits from L<Catalyst::Controller::WrapCGI>, see the documentation for that
 module for configuration information.
 
 =cut
+
+has cgi_root_path => (is => 'ro', isa => 'Str', default => 'cgi-bin');
 
 sub register_actions {
     my ($self, $app) = @_;
@@ -160,13 +161,17 @@ sub cgi_action {
 Takes a path to a CGI from C<root/cgi-bin> such as C<foo/bar.cgi> and returns
 the public path it should be registered under.
 
-The default is C<cgi-bin/$cgi>.
+The default is to prefix with the C<cgi_root_path> config setting, or if not set
+uses C<cgi-bin/$cgi>.
 
 =cut
 
 sub cgi_path {
     my ($self, $cgi) = @_;
-    return "cgi-bin/$cgi";
+
+    my $root = $self->cgi_root_path;
+    $root =~ s{/*$}{};
+    return "$root/$cgi";
 }
 
 =head2 $self->is_perl_cgi($path)

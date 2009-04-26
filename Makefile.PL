@@ -15,7 +15,7 @@ requires 'List::MoreUtils';
 requires 'File::Slurp';
 requires 'namespace::clean';
 
-requires 'MRO::Compat';
+requires 'Moose';
 
 if($] < 5.009_005) {
     requires 'Class::C3::XS' => '0.08';

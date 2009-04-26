@@ -1,8 +1,9 @@
 package Catalyst::Controller::WrapCGI;
 
-use strict;
-use warnings;
-use parent 'Catalyst::Controller';
+use Moose;
+use mro 'c3';
+
+extends 'Catalyst::Controller';
 
 use HTTP::Request::AsCGI;
 use HTTP::Request;

@@ -1,33 +1,34 @@
 Revision history for Catalyst-Controller-WrapCGI
 
-0.001  2008-06-28 15:28:46
-    First complete dist.
-
-0.002  2008-07-02 23:02:20
-    First release.
-
-0.0022  2008-07-04 02:52:52
-    Fixed test shell script portability and missing dep on Class::C3
-
-0.0024  2008-11-19 16:00:54
-    Fixed for Catalyst 5.8
-
-0.0025  2009-01-09 14:59:20
-    Tell Static::Simple to ignore root/cgi-bin for C::C::CGIBin
-
-0.0026  2009-02-02
-    Stop storing generated files in SVN and add svn:ignore.
-    Remove taint from tests as this breaks in a local::lib environment
-    as PERL5LIB is stripped.
-
-0.0027  2009-04-03 14:55:34
-    Add 'kill_env' and default to killing 'MOD_PERL' from environment.
+0.0029  2009-04-26 20:54:28
+    - Allow more control over public paths to CGIBin actions. (confound)
+    - Override exit() in CGIBin-wrapped Perl cgis to avoid terminating the
+      Catalyst process. (confound)
+    - Set (temporarily) $0 to the filename of the Perl cgi being executed.
+      (confound)
+    - cgi_root_path accessor, convert to Moose (caelum)
+    - slight rewrite of docs and a test for __DATA__ (caelum)
 
 0.0028  2009-04-24 04:40:39
-    Add support for __DATA__ sections in cgis for C::CGIBin
+    - Add support for __DATA__ sections in cgis for C::CGIBin (caelum)
 
-0.0029
-    Allow more control over public paths to CGIBin actions.
-    Override exit() in CGIBin-wrapped Perl cgis to avoid terminating the
-    Catalyst process.
-    Set (temporarily) $0 to the filename of the Perl cgi being executed.
+0.0027  2009-04-03 14:55:34
+    - Add 'kill_env' and default to killing 'MOD_PERL' from environment.
+    (confound)
+
+0.0026  2009-02-02
+    - Stop storing generated files in SVN and add svn:ignore.
+    - Remove taint from tests as this breaks in a local::lib environment
+      as PERL5LIB is stripped.
+
+0.0025  2009-01-09 14:59:20
+    - Tell Static::Simple to ignore root/cgi-bin for C::C::CGIBin (caelum)
+
+0.0024  2008-11-19 16:00:54
+    - Fixed for Catalyst 5.8 (caelum)
+
+0.002  2008-07-02 23:02:20
+    - First release.
+
+0.001  2008-06-28 15:28:46
+    - First complete dist.
