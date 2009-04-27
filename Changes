@@ -1,5 +1,7 @@
 Revision history for Catalyst-Controller-WrapCGI
 
+    - revert PATH_INFO tests to unescaped URIs (caelum)
+
 0.0030  2009-04-27 05:17:17
     - configurable cgi_dir (caelum)
     - support for PATH_INFO and SCRIPT_NAME (caelum)
