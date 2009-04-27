@@ -16,4 +16,14 @@ sub handle_cgi : Path('/cgi-bin/test.cgi') {
     $self->cgi_to_response($c, $cgi);
 }
 
+sub test_path_info : Path('/cgi-bin/test_pathinfo.cgi') {
+    my ($self, $c) = @_;
+
+    $self->cgi_to_response($c, sub {
+        my $cgi = CGI->new;
+        print $cgi->header;
+        print $ENV{PATH_INFO}
+    });
+}
+
 1;

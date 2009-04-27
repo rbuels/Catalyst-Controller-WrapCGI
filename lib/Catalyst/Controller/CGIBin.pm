@@ -22,11 +22,11 @@ Catalyst::Controller::CGIBin - Serve CGIs from root/cgi-bin
 
 =head1 VERSION
 
-Version 0.007
+Version 0.008
 
 =cut
 
-our $VERSION = '0.007';
+our $VERSION = '0.008';
 
 =head1 SYNOPSIS
 
@@ -287,9 +287,11 @@ sub wrap_nonperl_cgi {
 L<Catalyst::Controller::WrapCGI>, L<CatalystX::GlobalContext>,
 L<Catalyst::Controller>, L<CGI>, L<Catalyst>
 
-=head1 AUTHOR
+=head1 AUTHORS
 
 Rafael Kitover, C<< <rkitover at cpan.org> >>
+
+Hans Dieter Pearcey, C<< <hdp at cpan.org> >>
 
 =head1 BUGS
 
