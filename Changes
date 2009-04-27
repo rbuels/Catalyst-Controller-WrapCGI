@@ -1,5 +1,8 @@
 Revision history for Catalyst-Controller-WrapCGI
 
+0.0032  2009-04-27 18:43:25
+    - fix deps, does not work in cat 5.7 (caelum)
+
 0.0031  2009-04-27 16:00:07
     - revert PATH_INFO tests to unescaped URIs (caelum)
 

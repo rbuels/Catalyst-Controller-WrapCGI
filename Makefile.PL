@@ -5,17 +5,15 @@ all_from 'lib/Catalyst/Controller/WrapCGI.pm';
 author   'Matt S. Trout <mst@shadowcat.co.uk>';
 include  'Module::AutoInstall';
 
-requires 'Catalyst' => '5.7007';
+requires 'Catalyst' => '5.80002';
 requires 'parent';
 requires 'Task::Weaken';
-requires 'HTTP::Request::AsCGI' => '0.7';;
+requires 'HTTP::Request::AsCGI' => '0.8';;
 requires 'URI';
 requires 'File::Find::Rule';
 requires 'List::MoreUtils';
 requires 'File::Slurp';
 requires 'namespace::clean';
-
-requires 'Moose';
 
 if($] < 5.009_005) {
     requires 'Class::C3::XS' => '0.08';
