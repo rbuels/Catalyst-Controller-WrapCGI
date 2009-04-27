@@ -72,7 +72,7 @@ module for other configuration information.
 
 =head2 cgi_root_path
 
-The global URI path prefix for CGIs, defaults to C<cgi-bin/>.
+The global URI path prefix for CGIs, defaults to C<cgi-bin>.
 
 =head2 cgi_dir
 
@@ -187,8 +187,8 @@ C<<$self->cgi_path($cgi)>>
 Takes a path to a CGI from C<root/cgi-bin> such as C<foo/bar.cgi> and returns
 the public path it should be registered under.
 
-The default is to prefix with the C<cgi_root_path> config setting, or if not set
-uses C<cgi-bin/$cgi>.
+The default is to prefix with C<$cgi_root_path/>, using the C<cgi_root_path>
+config setting, above.
 
 =cut
 
