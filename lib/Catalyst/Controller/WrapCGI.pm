@@ -9,6 +9,9 @@ use HTTP::Request::AsCGI ();
 use HTTP::Request ();
 use URI ();
 use Catalyst::Exception ();
+use URI::Escape;
+
+use namespace::clean -except => 'meta';
 
 =head1 NAME
 
@@ -91,12 +94,14 @@ open my $REAL_STDOUT, ">>&=".fileno(*STDOUT);
 
 =head1 METHODS
 
-=head2 $self->cgi_to_response($c, $coderef)
+=head2 cgi_to_response
+
+C<<$self->cgi_to_response($c, $coderef)>>
 
 Does the magic of running $coderef in a CGI environment, and populating the
 appropriate parts of your Catalyst context with the results.
 
-Calls wrap_cgi (below.)
+Calls L</wrap_cgi>.
 
 =cut
 
@@ -119,7 +124,9 @@ sub cgi_to_response {
   $c->res->headers($res->headers);
 }
 
-=head2 $self->wrap_cgi($c, $coderef)
+=head2 wrap_cgi
+
+C<<$self->wrap_cgi($c, $coderef)>>
 
 Runs $coderef in a CGI environment using L<HTTP::Request::AsCGI>, returns an
 L<HTTP::Response>.
@@ -130,7 +137,7 @@ The environment variables to pass on are taken from the configuration for your
 Controller, see L</SYNOPSIS> for an example. If you don't supply a list of
 environment variables to pass, the whole of %ENV is used.
 
-Used by cgi_to_response (above), which is probably what you want to use as well.
+Used by L</cgi_to_response>, which is probably what you want to use as well.
 
 =cut
 
@@ -167,13 +174,15 @@ sub wrap_cgi {
                ? eval { $c->user->obj->$username_field }
                 : '');
 
-  my $path_info = '/'.join '/' => @{ $c->req->args };
+  my $path_info = '/'.join '/' => map uri_escape_utf8($_), @{ $c->req->args };
 
   my $env = HTTP::Request::AsCGI->new(
               $req,
               ($username ? (REMOTE_USER => $username) : ()),
               %$filtered_env,
-              PATH_INFO => $path_info
+              PATH_INFO => $path_info,
+              FILEPATH_INFO => '/'.$c->action.$path_info, # eww
+              SCRIPT_NAME => $c->uri_for($c->action)->path
             );
 
   {
@@ -235,6 +244,7 @@ sub _filtered_env {
   return { map {; $_ => $env->{$_} } @ok };
 }
 
+__PACKAGE__->meta->make_immutable;
 
 =head1 ACKNOWLEDGEMENTS
 

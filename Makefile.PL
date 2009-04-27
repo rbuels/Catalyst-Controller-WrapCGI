@@ -8,7 +8,7 @@ include  'Module::AutoInstall';
 requires 'Catalyst' => '5.7007';
 requires 'parent';
 requires 'Task::Weaken';
-requires 'HTTP::Request::AsCGI';
+requires 'HTTP::Request::AsCGI' => '0.7';;
 requires 'URI';
 requires 'File::Find::Rule';
 requires 'List::MoreUtils';

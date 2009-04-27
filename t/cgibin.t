@@ -6,7 +6,7 @@ use warnings;
 use FindBin '$Bin';
 use lib "$Bin/lib";
 
-use Test::More tests => 7;
+use Test::More tests => 8;
 
 use Catalyst::Test 'TestCGIBin';
 use HTTP::Request::Common;
@@ -53,6 +53,10 @@ is($response->content, 'foo:bar bar:baz',
 $response = request '/my-bin/path/testdata.pl';
 is($response->content, "testing\n",
     'scripts with __DATA__ sections work');
+
+$response = request '/my-bin/pathinfo.pl/path/info';
+is($response->content, '/path/info',
+    'PATH_INFO works');
 
 SKIP: {
     skip "Can't run shell scripts on non-*nix", 1

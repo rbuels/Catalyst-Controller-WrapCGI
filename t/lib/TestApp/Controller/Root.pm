@@ -26,4 +26,24 @@ sub test_path_info : Path('/cgi-bin/test_pathinfo.cgi') {
     });
 }
 
+sub test_filepath_info : Path('/cgi-bin/test_filepathinfo.cgi') {
+    my ($self, $c) = @_;
+
+    $self->cgi_to_response($c, sub {
+        my $cgi = CGI->new;
+        print $cgi->header;
+        print $ENV{FILEPATH_INFO}
+    });
+}
+
+sub test_script_name : Path('/cgi-bin/test_scriptname.cgi') {
+    my ($self, $c) = @_;
+
+    $self->cgi_to_response($c, sub {
+        my $cgi = CGI->new;
+        print $cgi->header;
+        print $ENV{SCRIPT_NAME}
+    });
+}
+
 1;

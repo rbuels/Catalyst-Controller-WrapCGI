@@ -11,9 +11,9 @@ use Test::More tests => 1;
 use Catalyst::Test 'TestCGIBinRoot';
 use HTTP::Request::Common;
 
-# test default root of "cgi-bin"
+# Test configurable path root and dir
 
-my $response = request POST '/cgi-bin/path/test.pl', [
+my $response = request POST '/cgi/path/test.pl', [
     foo => 'bar',
     bar => 'baz'
 ];

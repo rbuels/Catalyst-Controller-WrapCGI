@@ -1,7 +1,9 @@
 Revision history for Catalyst-Controller-WrapCGI
 
-    - configurable cgi_dir
-    - support for PATH_INFO
+0.0030  2009-04-27 05:17:17
+    - configurable cgi_dir (caelum)
+    - support for PATH_INFO and SCRIPT_NAME (caelum)
+    - FILEPATH_INFO (iffy implementation) (caelum)
 
 0.0029  2009-04-26 20:54:28
     - Allow more control over public paths to CGIBin actions (hdp)
