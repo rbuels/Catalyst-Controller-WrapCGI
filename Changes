@@ -4,11 +4,10 @@ Revision history for Catalyst-Controller-WrapCGI
     - support for PATH_INFO
 
 0.0029  2009-04-26 20:54:28
-    - Allow more control over public paths to CGIBin actions. (confound)
+    - Allow more control over public paths to CGIBin actions (hdp)
     - Override exit() in CGIBin-wrapped Perl cgis to avoid terminating the
-      Catalyst process. (confound)
-    - Set (temporarily) $0 to the filename of the Perl cgi being executed.
-      (confound)
+      Catalyst process (hdp)
+    - Set (temporarily) $0 to the filename of the Perl cgi being executed (hdp)
     - cgi_root_path accessor, convert to Moose (caelum)
     - slight rewrite of docs and a test for __DATA__ (caelum)
 
@@ -16,8 +15,7 @@ Revision history for Catalyst-Controller-WrapCGI
     - Add support for __DATA__ sections in cgis for C::CGIBin (caelum)
 
 0.0027  2009-04-03 14:55:34
-    - Add 'kill_env' and default to killing 'MOD_PERL' from environment.
-    (confound)
+    - Add 'kill_env' and default to killing 'MOD_PERL' from environment (hdp)
 
 0.0026  2009-02-02
     - Stop storing generated files in SVN and add svn:ignore.
