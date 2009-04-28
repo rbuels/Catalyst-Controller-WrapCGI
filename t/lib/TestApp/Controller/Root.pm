@@ -9,6 +9,9 @@ my $cgi = sub {
     my $cgi = CGI->new;
     print $cgi->header;
     print 'foo:',$cgi->param('foo'),' bar:',$cgi->param('bar');
+    if (my $fh = $cgi->param('baz')) {
+      print 'baz:',<$fh>;
+    }
 };
 
 sub handle_cgi : Path('/cgi-bin/test.cgi') {
