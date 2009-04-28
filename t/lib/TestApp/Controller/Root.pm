@@ -8,7 +8,7 @@ __PACKAGE__->config->{namespace} = '';
 my $cgi = sub {
     my $cgi = CGI->new;
     print $cgi->header;
-    print 'foo:',$cgi->param('foo'),' bar:',$cgi->param('bar')
+    print 'foo:',$cgi->param('foo'),' bar:',$cgi->param('bar');
 };
 
 sub handle_cgi : Path('/cgi-bin/test.cgi') {

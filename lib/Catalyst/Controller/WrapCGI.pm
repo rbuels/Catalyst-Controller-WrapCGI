@@ -76,8 +76,9 @@ variables or regular expressions to remove from the environment before passing
 it to your CGIs.  Entries surrounded by C</> characters are considered regular
 expressions.
 
-Default is to pass the whole of C<%ENV>, except for C<MOD_PERL> (that is, the
-default C<kill_env> is C<[ 'MOD_PERL' ]>.
+Default is to pass the whole of C<%ENV>, except for C<MOD_PERL> and
+C<CONTENT_TYPE> (that is, the default C<kill_env> is C<[ qw(MOD_PERL
+CONTENT_TYPE) ]>.
 
 C<< $your_controller->{CGI}{username_field} >> should be the field for your user's name, which will be
 read from C<< $c->user->obj >>. Defaults to 'username'.
@@ -217,7 +218,7 @@ sub _filtered_env {
   $pass_env = [ $pass_env ] unless ref $pass_env;
 
   my $kill_env = $self->{CGI}{kill_env};
-  $kill_env = [ 'MOD_PERL' ] unless defined $kill_env;
+  $kill_env = [ 'MOD_PERL', 'CONTENT_TYPE' ] unless defined $kill_env;
   $kill_env = [ $kill_env ]  unless ref $kill_env;
 
   if (@$pass_env) {
