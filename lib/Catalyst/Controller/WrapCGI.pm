@@ -169,11 +169,10 @@ sub wrap_cgi {
               undef,
               $upl->filename,
               Content => $upl->slurp,
-              'Content-Type' => $upl->type || 'application/octet-stream',
-              map (
-                $_ => $upl->headers->header($_)
-              ), grep !/^Content-(?:Type|Disposition)$/,
-                            $upl->headers->header_field_names
+              map {
+                my $header = $_;
+                map { $header => $_ } $upl->headers->header($header)
+              } $upl->headers->header_field_names
             ]
           } keys %uploads
         ];

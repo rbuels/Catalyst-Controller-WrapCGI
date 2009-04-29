@@ -36,10 +36,11 @@ $response = request POST '/cgi-bin/test.cgi',
         'Content-Type' => 'text/plain',
         Content => 3
     ],
+    quux => [ undef, quux => Content => 4 ],
   ],
   'Content-Type' => 'form-data';
 
-is($response->content, 'foo:1 bar:2 baz:3', 'POST with file upload');
+is($response->content, 'foo:1 bar:2 baz:3 quux:4', 'POST with file upload');
 
 $response = request '/cgi-bin/test_pathinfo.cgi/path/%2Finfo';
 is($response->content, '/path/%2Finfo', 'PATH_INFO is correct');

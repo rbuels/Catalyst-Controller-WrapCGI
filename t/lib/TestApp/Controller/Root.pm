@@ -13,6 +13,10 @@ my $cgi = sub {
       local $/;
       print ' baz:',<$fh>;
     }
+    if (my $fh = $cgi->param('quux')) {
+      local $/;
+      print ' quux:',<$fh>;
+    }
     die $cgi->cgi_error if $cgi->cgi_error;
 };
 
