@@ -10,6 +10,7 @@ use HTTP::Request ();
 use URI ();
 use Catalyst::Exception ();
 use URI::Escape;
+use HTTP::Request::Common;
 
 use namespace::clean -except => 'meta';
 
@@ -19,11 +20,11 @@ Catalyst::Controller::WrapCGI - Run CGIs in Catalyst
 
 =head1 VERSION
 
-Version 0.0032
+Version 0.0033
 
 =cut
 
-our $VERSION = '0.0032';
+our $VERSION = '0.0033';
 
 =head1 SYNOPSIS
 
@@ -156,7 +157,29 @@ sub wrap_cgi {
     local $/; $body_content = <$body>;
   } else {
     my $body_params = $c->req->body_parameters;
-    if (%$body_params) {
+
+    if (my %uploads = %{ $c->req->uploads }) {
+      my $post = POST 'http://localhost/',
+        Content_Type => 'form-data',
+        Content => [
+          %$body_params,
+          map {
+            my $upl = $uploads{$_};
+            $_ => [
+              undef,
+              $upl->filename,
+              Content => $upl->slurp,
+              'Content-Type' => $upl->type || 'application/octet-stream',
+              map (
+                $_ => $upl->headers->header($_)
+              ), grep !/^Content-(?:Type|Disposition)$/,
+                            $upl->headers->header_field_names
+            ]
+          } keys %uploads
+        ];
+      $body_content = $post->content;
+      $req->content_type($post->header('Content-Type'));
+    } elsif (%$body_params) {
       my $encoder = URI->new;
       $encoder->query_form(%$body_params);
       $body_content = $encoder->query;

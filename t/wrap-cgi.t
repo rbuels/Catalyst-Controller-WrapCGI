@@ -27,14 +27,19 @@ is($response->content, 'foo:bar bar:baz', 'POST to CGI (form-data)');
 
 $response = request POST '/cgi-bin/test.cgi',
   Content => [
-    foo => 1, bar => 2, baz => [ undef, 'baz', Content => 3 ],
+    foo => 1,
+    bar => 2,
+    baz => [
+        undef,
+        'baz',
+        'Some-Header' => 'blah',
+        'Content-Type' => 'text/plain',
+        Content => 3
+    ],
   ],
   'Content-Type' => 'form-data';
 
-{
-  local $TODO = 'WrapCGI does not yet construct multipart/form-data requests';
-  is($response->content, 'foo:1 bar:2 baz:3', 'POST with file upload');
-}
+is($response->content, 'foo:1 bar:2 baz:3', 'POST with file upload');
 
 $response = request '/cgi-bin/test_pathinfo.cgi/path/%2Finfo';
 is($response->content, '/path/%2Finfo', 'PATH_INFO is correct');

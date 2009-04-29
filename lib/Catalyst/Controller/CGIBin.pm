@@ -14,7 +14,7 @@ use Symbol 'gensym';
 use List::MoreUtils 'any';
 use IO::File ();
 use Carp;
-
+ 
 use namespace::clean -except => 'meta';
 
 =head1 NAME
@@ -23,11 +23,11 @@ Catalyst::Controller::CGIBin - Serve CGIs from root/cgi-bin
 
 =head1 VERSION
 
-Version 0.011
+Version 0.012
 
 =cut
 
-our $VERSION = '0.011';
+our $VERSION = '0.012';
 
 =head1 SYNOPSIS
 

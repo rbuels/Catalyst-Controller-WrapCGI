@@ -10,8 +10,10 @@ my $cgi = sub {
     print $cgi->header;
     print 'foo:',$cgi->param('foo'),' bar:',$cgi->param('bar');
     if (my $fh = $cgi->param('baz')) {
-      print 'baz:',<$fh>;
+      local $/;
+      print ' baz:',<$fh>;
     }
+    die $cgi->cgi_error if $cgi->cgi_error;
 };
 
 sub handle_cgi : Path('/cgi-bin/test.cgi') {
