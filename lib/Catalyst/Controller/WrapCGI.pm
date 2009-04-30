@@ -20,11 +20,11 @@ Catalyst::Controller::WrapCGI - Run CGIs in Catalyst
 
 =head1 VERSION
 
-Version 0.0033
+Version 0.0034
 
 =cut
 
-our $VERSION = '0.0033';
+our $VERSION = '0.0034';
 
 =head1 SYNOPSIS
 
@@ -68,21 +68,27 @@ If you just want to run CGIs from files, see L<Catalyst::Controller::CGIBin>.
 
 =head1 CONFIGURATION
 
+=head2 pass_env
+
 C<< $your_controller->{CGI}{pass_env} >> should be an array of environment variables
 or regular expressions to pass through to your CGIs. Entries surrounded by C</>
 characters are considered regular expressions.
+
+=head2 kill_env
 
 C<< $your_controller->{CGI}{kill_env} >> should be an array of environment
 variables or regular expressions to remove from the environment before passing
 it to your CGIs.  Entries surrounded by C</> characters are considered regular
 expressions.
 
-Default is to pass the whole of C<%ENV>, except for C<MOD_PERL> and
-C<CONTENT_TYPE> (that is, the default C<kill_env> is C<[ qw(MOD_PERL
-CONTENT_TYPE) ]>.
+Default is to pass the whole of C<%ENV>, except for entries listed in
+L</FILTERED ENVIRONMENT> below.
 
-C<< $your_controller->{CGI}{username_field} >> should be the field for your user's name, which will be
-read from C<< $c->user->obj >>. Defaults to 'username'.
+=head2 username_field
+
+C<< $your_controller->{CGI}{username_field} >> should be the field for your
+user's name, which will be read from C<< $c->user->obj >>. Defaults to
+'username'.
 
 See L</SYNOPSIS> for an example.
 
@@ -231,6 +237,44 @@ sub wrap_cgi {
   return $env->response;
 }
 
+=head1 FILTERED ENVIRONMENT
+
+If you don't use the L</pass_env> option to restrict which environment variables
+are passed in, the default is to pass the whole of C<%ENV> except the variables
+listed below.
+
+  MOD_PERL
+  SERVER_SOFTWARE
+  SERVER_NAME
+  GATEWAY_INTERFACE
+  SERVER_PROTOCOL
+  SERVER_PORT
+  REQUEST_METHOD
+  PATH_INFO
+  PATH_TRANSLATED
+  SCRIPT_NAME
+  QUERY_STRING
+  REMOTE_HOST
+  REMOTE_ADDR
+  AUTH_TYPE
+  REMOTE_USER
+  REMOTE_IDENT
+  CONTENT_TYPE
+  CONTENT_LENGTH
+  HTTP_ACCEPT
+  HTTP_USER_AGENT
+
+C<%ENV> can be further trimmed using L</kill_env>.
+
+=cut
+
+my $DEFAULT_KILL_ENV = [qw/
+  MOD_PERL SERVER_SOFTWARE SERVER_NAME GATEWAY_INTERFACE SERVER_PROTOCOL
+  SERVER_PORT REQUEST_METHOD PATH_INFO PATH_TRANSLATED SCRIPT_NAME QUERY_STRING
+  REMOTE_HOST REMOTE_ADDR AUTH_TYPE REMOTE_USER REMOTE_IDENT CONTENT_TYPE
+  CONTENT_LENGTH HTTP_ACCEPT HTTP_USER_AGENT
+/];
+
 sub _filtered_env {
   my ($self, $env) = @_;
   my @ok;
@@ -240,7 +284,7 @@ sub _filtered_env {
   $pass_env = [ $pass_env ] unless ref $pass_env;
 
   my $kill_env = $self->{CGI}{kill_env};
-  $kill_env = [ 'MOD_PERL', 'CONTENT_TYPE' ] unless defined $kill_env;
+  $kill_env = $DEFAULT_KILL_ENV unless defined $kill_env;
   $kill_env = [ $kill_env ]  unless ref $kill_env;
 
   if (@$pass_env) {
