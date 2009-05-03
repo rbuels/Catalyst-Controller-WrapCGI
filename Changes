@@ -1,5 +1,8 @@
 Revision history for Catalyst-Controller-WrapCGI
 
+0.0035  2009-05-03 04:33:27
+    - add a note about nph cgis not working (caelum)
+
 0.0034  2009-04-30 16:38:00
     - remove all CGI specific env vars by default (caelum)
 

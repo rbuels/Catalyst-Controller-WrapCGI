@@ -20,11 +20,11 @@ Catalyst::Controller::WrapCGI - Run CGIs in Catalyst
 
 =head1 VERSION
 
-Version 0.0034
+Version 0.0035
 
 =cut
 
-our $VERSION = '0.0034';
+our $VERSION = '0.0035';
 
 =head1 SYNOPSIS
 
@@ -52,7 +52,7 @@ In your .conf, configure which environment variables to pass:
             pass_env PERL5LIB
             pass_env PATH
             pass_env /^MYAPP_/
-            kill_env MOD_PERL
+            kill_env MYAPP_BAD
         </CGI>
     </Controller::Foo>
 
@@ -210,7 +210,8 @@ sub wrap_cgi {
               ($username ? (REMOTE_USER => $username) : ()),
               %$filtered_env,
               PATH_INFO => $path_info,
-              FILEPATH_INFO => '/'.$c->action.$path_info, # eww
+# eww, this is likely broken:
+              FILEPATH_INFO => '/'.$c->action.$path_info,
               SCRIPT_NAME => $c->uri_for($c->action)->path
             );
 
@@ -312,6 +313,25 @@ sub _filtered_env {
 }
 
 __PACKAGE__->meta->make_immutable;
+
+=head1 DIRECT SOCKET/NPH SCRIPTS
+
+This currently won't work:
+
+    #!/usr/bin/perl
+
+    use CGI ':standard';
+
+    $| = 1;
+
+    print header;
+
+    for (0..1000) {
+        print $_, br, "\n";
+    }
+
+because the coderef is executed synchronously with C<STDOUT> pointing to a temp
+file.
 
 =head1 ACKNOWLEDGEMENTS
 
