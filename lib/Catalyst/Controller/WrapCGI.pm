@@ -20,11 +20,11 @@ Catalyst::Controller::WrapCGI - Run CGIs in Catalyst
 
 =head1 VERSION
 
-Version 0.0035
+Version 0.0036
 
 =cut
 
-our $VERSION = '0.0035';
+our $VERSION = '0.0036';
 
 =head1 SYNOPSIS
 
@@ -203,7 +203,9 @@ sub wrap_cgi {
                ? eval { $c->user->obj->$username_field }
                 : '');
 
-  my $path_info = '/'.join '/' => map uri_escape_utf8($_), @{ $c->req->args };
+  my $path_info = '/'.join '/' => map {
+    utf8::is_utf8($_) ? uri_escape_utf8($_) : uri_escape($_)
+  } @{ $c->req->args };
 
   my $env = HTTP::Request::AsCGI->new(
               $req,
@@ -328,6 +330,7 @@ This currently won't work:
 
     for (0..1000) {
         print $_, br, "\n";
+        sleep 1;
     }
 
 because the coderef is executed synchronously with C<STDOUT> pointing to a temp

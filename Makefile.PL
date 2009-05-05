@@ -9,8 +9,15 @@ requires 'HTTP::Request::AsCGI' => '0.8';;
 requires 'File::Find::Rule';
 requires 'List::MoreUtils';
 requires 'File::Slurp';
+requires 'URI' => '1.37';
+requires 'parent';
+requires 'namespace::clean';
+requires 'Task::Weaken';
+requires 'LWP';
+requires 'Moose';
 
 test_requires 'Catalyst::Plugin::Static::Simple';
+test_requires 'CGI';
 
 build_requires 'Test::More' => '0.86';
 

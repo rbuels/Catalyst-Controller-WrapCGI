@@ -1,5 +1,8 @@
 Revision history for Catalyst-Controller-WrapCGI
 
+0.0036  2009-05-05 19:45:20
+    - fix deps (caelum)
+
 0.0035  2009-05-03 04:33:27
     - add a note about nph cgis not working (caelum)
 
