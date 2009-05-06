@@ -45,7 +45,9 @@ sub test_filepath_info : Path('/cgi-bin/test_filepathinfo.cgi') {
     });
 }
 
-sub test_script_name : Path('/cgi-bin/test_scriptname.cgi') {
+sub test_script_name_root : Chained('/') PathPart('cgi-bin') CaptureArgs(1) {}
+
+sub test_script_name : Chained('test_script_name_root') PathPart('test_scriptname.cgi') Args {
     my ($self, $c) = @_;
 
     $self->cgi_to_response($c, sub {

@@ -20,11 +20,11 @@ Catalyst::Controller::WrapCGI - Run CGIs in Catalyst
 
 =head1 VERSION
 
-Version 0.0036
+Version 0.0037
 
 =cut
 
-our $VERSION = '0.0036';
+our $VERSION = '0.0037';
 
 =head1 SYNOPSIS
 
@@ -214,7 +214,7 @@ sub wrap_cgi {
               PATH_INFO => $path_info,
 # eww, this is likely broken:
               FILEPATH_INFO => '/'.$c->action.$path_info,
-              SCRIPT_NAME => $c->uri_for($c->action)->path
+              SCRIPT_NAME => $c->uri_for($c->action, $c->req->captures)->path
             );
 
   {

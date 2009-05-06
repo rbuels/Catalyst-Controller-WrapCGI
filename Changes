@@ -1,5 +1,8 @@
 Revision history for Catalyst-Controller-WrapCGI
 
+0.0037  2009-05-06 20:07:00
+    - pass captures in SCRIPT_NAME (caelum)
+
 0.0036  2009-05-05 19:45:20
     - fix deps (caelum)
 
