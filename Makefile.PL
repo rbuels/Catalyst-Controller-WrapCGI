@@ -21,8 +21,7 @@ test_requires 'CGI';
 
 build_requires 'Test::More' => '0.86';
 
+auto_provides;
 auto_install;
-
 resources repository => 'http://dev.catalyst.perl.org/repos/Catalyst/trunk/Catalyst-Controller-WrapCGI/';
-
 WriteAll;

@@ -1,5 +1,9 @@
 Revision history for Catalyst-Controller-WrapCGI
 
+0.016  2009-05-26 22:35:09
+    - fallback to $c->req->remote_user for $ENV{REMOTE_USER}
+    - fix POD
+
 0.0037  2009-05-06 20:07:00
     - pass captures in SCRIPT_NAME (caelum)
 

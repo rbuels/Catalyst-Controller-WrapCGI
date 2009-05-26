@@ -6,7 +6,7 @@ use warnings;
 use FindBin '$Bin';
 use lib "$Bin/lib";
 
-use Test::More tests => 6;
+use Test::More tests => 7;
 
 use Catalyst::Test 'TestApp';
 use HTTP::Request::Common;
@@ -52,3 +52,7 @@ is($response->content, '/test_filepath_info/path/%2Finfo',
 $response = request '/cgi-bin/mtfnpy/test_scriptname.cgi/foo/bar';
 is($response->content, '/cgi-bin/mtfnpy/test_scriptname.cgi',
     'SCRIPT_NAME is correct');
+
+$ENV{REMOTE_USER} = 'TEST_USER';
+$response = request '/cgi-bin/test_remote_user.cgi';
+is($response->content, 'TEST_USER', 'REMOTE_USER was passed');

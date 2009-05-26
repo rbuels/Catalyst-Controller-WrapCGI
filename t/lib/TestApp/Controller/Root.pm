@@ -57,4 +57,14 @@ sub test_script_name : Chained('test_script_name_root') PathPart('test_scriptnam
     });
 }
 
+sub test_remote_user : Path('/cgi-bin/test_remote_user.cgi') Args(0) {
+    my ($self, $c) = @_;
+
+    $self->cgi_to_response($c, sub {
+        my $cgi = CGI->new;
+        print $cgi->header;
+        print $ENV{REMOTE_USER}
+    });
+}
+
 1;

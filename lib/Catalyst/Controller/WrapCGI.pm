@@ -20,11 +20,11 @@ Catalyst::Controller::WrapCGI - Run CGIs in Catalyst
 
 =head1 VERSION
 
-Version 0.0037
+Version 0.016
 
 =cut
 
-our $VERSION = '0.0037';
+our $VERSION = '0.016';
 
 =head1 SYNOPSIS
 
@@ -66,6 +66,9 @@ with L<Catalyst> 5.8 onward.
 
 If you just want to run CGIs from files, see L<Catalyst::Controller::CGIBin>.
 
+C<REMOTE_USER> will be set to C<< $c->user->obj->$username_field >> if
+available, or to C<< $c->req->remote_user >> otherwise.
+
 =head1 CONFIGURATION
 
 =head2 pass_env
@@ -104,7 +107,7 @@ open my $REAL_STDOUT, ">>&=".fileno(*STDOUT);
 
 =head2 cgi_to_response
 
-C<<$self->cgi_to_response($c, $coderef)>>
+C<< $self->cgi_to_response($c, $coderef) >>
 
 Does the magic of running $coderef in a CGI environment, and populating the
 appropriate parts of your Catalyst context with the results.
@@ -134,16 +137,17 @@ sub cgi_to_response {
 
 =head2 wrap_cgi
 
-C<<$self->wrap_cgi($c, $coderef)>>
+C<< $self->wrap_cgi($c, $coderef) >>
 
 Runs $coderef in a CGI environment using L<HTTP::Request::AsCGI>, returns an
 L<HTTP::Response>.
 
-The CGI environment is set up based on $c.
+The CGI environment is set up based on C<$c>.
 
 The environment variables to pass on are taken from the configuration for your
 Controller, see L</SYNOPSIS> for an example. If you don't supply a list of
-environment variables to pass, the whole of %ENV is used.
+environment variables to pass, the whole of %ENV is used (with exceptions listed
+in L</FILTERED ENVIRONMENT>.
 
 Used by L</cgi_to_response>, which is probably what you want to use as well.
 
@@ -202,6 +206,8 @@ sub wrap_cgi {
   my $username = (($c->can('user_exists') && $c->user_exists)
                ? eval { $c->user->obj->$username_field }
                 : '');
+
+  $username ||= $c->req->remote_user if $c->req->can('remote_user');
 
   my $path_info = '/'.join '/' => map {
     utf8::is_utf8($_) ? uri_escape_utf8($_) : uri_escape($_)

@@ -23,11 +23,11 @@ Catalyst::Controller::CGIBin - Serve CGIs from root/cgi-bin
 
 =head1 VERSION
 
-Version 0.015
+Version 0.016
 
 =cut
 
-our $VERSION = '0.015';
+our $VERSION = '0.016';
 
 =head1 SYNOPSIS
 
@@ -154,7 +154,7 @@ sub register_actions {
 
 =head2 cgi_action
 
-C<<$self->cgi_action($cgi)>>
+C<< $self->cgi_action($cgi) >>
 
 Takes a path to a CGI from C<root/cgi-bin> such as C<foo/bar.cgi> and returns
 the action name it is registered as. See L</DESCRIPTION> for a discussion on how
@@ -182,7 +182,7 @@ sub cgi_action {
 
 =head2 cgi_path
 
-C<<$self->cgi_path($cgi)>>
+C<< $self->cgi_path($cgi) >>
 
 Takes a path to a CGI from C<root/cgi-bin> such as C<foo/bar.cgi> and returns
 the public path it should be registered under.
@@ -202,7 +202,7 @@ sub cgi_path {
 
 =head2 is_perl_cgi
 
-C<<$self->is_perl_cgi($path)>>
+C<< $self->is_perl_cgi($path) >>
 
 Tries to figure out whether the CGI is Perl or not.
 
@@ -230,7 +230,7 @@ sub is_perl_cgi {
 
 =head2 wrap_perl_cgi
 
-C<<$self->wrap_perl_cgi($path, $action_name)>>
+C<< $self->wrap_perl_cgi($path, $action_name) >>
 
 Takes the path to a Perl CGI and returns a coderef suitable for passing to
 cgi_to_response (from L<Catalyst::Controller::WrapCGI>.)
@@ -294,7 +294,7 @@ sub wrap_perl_cgi {
 
 =head2 wrap_nonperl_cgi
 
-C<<$self->wrap_nonperl_cgi($path, $action_name)>>
+C<< $self->wrap_nonperl_cgi($path, $action_name) >>
 
 Takes the path to a non-Perl CGI and returns a coderef for executing it.
 
