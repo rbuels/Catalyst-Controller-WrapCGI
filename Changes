@@ -1,5 +1,8 @@
 Revision history for Catalyst-Controller-WrapCGI
 
+0.017  2009-05-30 09:56:43
+    - skip test that depends on unreleased runtime
+
 0.016  2009-05-26 22:35:09
     - fallback to $c->req->remote_user for $ENV{REMOTE_USER}
     - fix POD

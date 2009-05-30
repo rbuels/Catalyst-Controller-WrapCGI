@@ -53,6 +53,13 @@ $response = request '/cgi-bin/mtfnpy/test_scriptname.cgi/foo/bar';
 is($response->content, '/cgi-bin/mtfnpy/test_scriptname.cgi',
     'SCRIPT_NAME is correct');
 
-$ENV{REMOTE_USER} = 'TEST_USER';
-$response = request '/cgi-bin/test_remote_user.cgi';
-is($response->content, 'TEST_USER', 'REMOTE_USER was passed');
+SKIP: {
+  require Catalyst;
+
+  skip 'no $c->req->remote_user', 1
+    if $Catalyst::VERSION < 5.80005;
+
+  $ENV{REMOTE_USER} = 'TEST_USER';
+  $response = request '/cgi-bin/test_remote_user.cgi';
+  is($response->content, 'TEST_USER', 'REMOTE_USER was passed');
+}
