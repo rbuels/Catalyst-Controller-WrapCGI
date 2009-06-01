@@ -1,5 +1,8 @@
 Revision history for Catalyst-Controller-WrapCGI
 
+0.018  2009-06-01 20:04:41
+    - remove forward example from synopsis in CGIBin, as that confuses people
+
 0.017  2009-05-30 09:56:43
     - skip test that depends on unreleased runtime
 

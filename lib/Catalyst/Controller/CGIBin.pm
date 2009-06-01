@@ -23,11 +23,11 @@ Catalyst::Controller::CGIBin - Serve CGIs from root/cgi-bin
 
 =head1 VERSION
 
-Version 0.017
+Version 0.018
 
 =cut
 
-our $VERSION = '0.017';
+our $VERSION = '0.018';
 
 =head1 SYNOPSIS
 
@@ -36,12 +36,6 @@ In your controller:
     package MyApp::Controller::Foo;
 
     use parent qw/Catalyst::Controller::CGIBin/;
-
-    # example of a forward to /cgi-bin/hlagh/mtfnpy.cgi
-    sub serve_cgi : Local Args(0) {
-        my ($self, $c) = @_;
-        $c->forward($self->cgi_action('hlagh/mtfnpy.cgi'));
-    }
 
 In your .conf:
 
