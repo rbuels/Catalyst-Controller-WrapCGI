@@ -6,7 +6,7 @@ use warnings;
 use FindBin '$Bin';
 use lib "$Bin/lib";
 
-use Test::More tests => 8;
+use Test::More tests => 9;
 
 use Catalyst::Test 'TestCGIBin';
 use HTTP::Request::Common;
@@ -20,6 +20,11 @@ my $response = request POST '/my-bin/path/test.pl', [
 ];
 
 is($response->content, 'foo:bar bar:baz', 'POST to Perl CGI File');
+
+$response = request '/my-bin/path/test.pl?foo=bar&bar=baz';
+
+is($response->content, 'foo:bar bar:baz',
+    'Perl CGI File invoked with query params');
 
 $response = request POST '/my-bin/exit.pl', [
     name => 'world',
