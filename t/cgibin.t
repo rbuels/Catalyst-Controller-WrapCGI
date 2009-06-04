@@ -67,5 +67,8 @@ SKIP: {
     skip "Can't run shell scripts on non-*nix", 1
         if $^O eq 'MSWin32' || $^O eq 'VMS';
 
+# for some reason the +x is not preserved in the dist
+    system "chmod +x $Bin/lib/TestCGIBin/root/cgi-bin/test.sh";
+
     is(get('/my-bin/test.sh'), "Hello!\n", 'Non-Perl CGI File');
 }
