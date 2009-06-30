@@ -1,5 +1,8 @@
 Revision history for Catalyst-Controller-WrapCGI
 
+0.020  2009-06-30 22:59:56
+    - fix AUTHOR pod sections
+
 0.019  2009-06-04 23:06:39
     - fix a "make test" problem with +x not preserved on test.sh
 

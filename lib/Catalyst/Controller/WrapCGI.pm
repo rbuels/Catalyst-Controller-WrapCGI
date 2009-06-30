@@ -20,11 +20,11 @@ Catalyst::Controller::WrapCGI - Run CGIs in Catalyst
 
 =head1 VERSION
 
-Version 0.019
+Version 0.020
 
 =cut
 
-our $VERSION = '0.019';
+our $VERSION = '0.020';
 
 =head1 SYNOPSIS
 
@@ -351,13 +351,11 @@ Original development sponsored by L<http://www.altinity.com/>
 L<Catalyst::Controller::CGIBin>, L<CatalystX::GlobalContext>,
 L<Catalyst::Controller>, L<CGI>, L<Catalyst>
 
-=head1 AUTHORS
-
-Originally written by:
+=head1 AUTHOR
 
 Matt S. Trout, C<< <mst at shadowcat.co.uk> >>
 
-Contributors:
+=head1 CONTRIBUTORS
 
 Rafael Kitover C<< <rkitover at cpan.org> >>
 

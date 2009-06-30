@@ -23,11 +23,11 @@ Catalyst::Controller::CGIBin - Serve CGIs from root/cgi-bin
 
 =head1 VERSION
 
-Version 0.019
+Version 0.020
 
 =cut
 
-our $VERSION = '0.019';
+our $VERSION = '0.020';
 
 =head1 SYNOPSIS
 
@@ -313,9 +313,11 @@ __PACKAGE__->meta->make_immutable;
 L<Catalyst::Controller::WrapCGI>, L<CatalystX::GlobalContext>,
 L<Catalyst::Controller>, L<CGI>, L<Catalyst>
 
-=head1 AUTHORS
+=head1 AUTHOR
 
 Rafael Kitover, C<< <rkitover at cpan.org> >>
+
+=head1 CONTRIBUTORS
 
 Hans Dieter Pearcey, C<< <hdp at cpan.org> >>
 
