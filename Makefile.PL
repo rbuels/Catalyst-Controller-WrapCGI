@@ -1,10 +1,10 @@
-use inc::Module::Install 0.87;
+use inc::Module::Install 0.91;
 
 name     'Catalyst-Controller-WrapCGI';
 all_from 'lib/Catalyst/Controller/WrapCGI.pm';
 author   'Matt S. Trout <mst@shadowcat.co.uk>';
 
-requires 'Catalyst' => '5.80002';
+requires 'Catalyst' => '5.80015';
 requires 'HTTP::Request::AsCGI' => '0.8';;
 requires 'File::Find::Rule';
 requires 'List::MoreUtils';

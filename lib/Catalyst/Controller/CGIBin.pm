@@ -14,6 +14,7 @@ use Symbol 'gensym';
 use List::MoreUtils 'any';
 use IO::File ();
 use Carp;
+use File::Temp 'tempfile';
  
 use namespace::clean -except => 'meta';
 
@@ -23,11 +24,11 @@ Catalyst::Controller::CGIBin - Serve CGIs from root/cgi-bin
 
 =head1 VERSION
 
-Version 0.020
+Version 0.021
 
 =cut
 
-our $VERSION = '0.020';
+our $VERSION = '0.021';
 
 =head1 SYNOPSIS
 
@@ -208,18 +209,28 @@ L</wrap_perl_cgi>.
 sub is_perl_cgi {
     my ($self, $cgi) = @_;
 
-    my $shebang = IO::File->new($cgi)->getline;
+    my (undef, $tempfile) = tempfile;
 
-    return 0 if $shebang !~ /perl/ && $cgi !~ /\.pl\z/;
+    my $pid = fork;
+    die "Cannot fork: $!" unless defined $pid;
 
-    my $taint_check = $shebang =~ /-T/ ?  '-T' : '';
+    if ($pid) {
+        waitpid $pid, 0;
+        my $errors = IO::File->new($tempfile)->getline;
+        unlink $tempfile;
+        return $errors ? 0 : 1;
+    }
 
+    # child
+    local *NULL;
     open NULL, '>', File::Spec->devnull;
-    my $pid = open3(gensym, '&>NULL', '&>NULL', "$^X $taint_check -c $cgi");
-    close NULL;
-    waitpid $pid, 0;
+    open STDOUT, '>&', \*NULL;
+    open STDERR, '>&', \*NULL;
+    close STDIN;
 
-    $? >> 8 == 0
+    do $cgi;
+    IO::File->new(">$tempfile")->print($@);
+    exit;
 }
 
 =head2 wrap_perl_cgi

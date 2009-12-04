@@ -1,6 +1,6 @@
 Catalyst-Controller-WrapCGI
 
-Some modules to help you port mod_perl/CGI code to Catalyst.
+Some modules to help you port CGI/mod_perl code to Catalyst.
 
 INSTALLATION
 
