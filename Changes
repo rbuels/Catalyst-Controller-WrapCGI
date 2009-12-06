@@ -1,5 +1,8 @@
 Revision history for Catalyst-Controller-WrapCGI
 
+0.022  2009-12-06 05:18:08
+    - handle scripts that override $SIG{__DIE__} and $SIG{__WARN__}
+
 0.021  2009-12-04 21:05:14
     - better is_perl_cgi determination that also allows using MyApp->foo
       methods

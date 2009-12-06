@@ -24,11 +24,11 @@ Catalyst::Controller::CGIBin - Serve CGIs from root/cgi-bin
 
 =head1 VERSION
 
-Version 0.021
+Version 0.022
 
 =cut
 
-our $VERSION = '0.021';
+our $VERSION = '0.022';
 
 =head1 SYNOPSIS
 
@@ -259,8 +259,12 @@ sub wrap_perl_cgi {
 
     my $code = slurp $cgi;
 
-    $code =~ s/^__DATA__(?:\r?\n|\r\n?)(.*)//ms;
+    $code =~ s/^__DATA__\n(.*)//ms;
     my $data = $1;
+
+    my $orig_exit = \*CORE::GLOBAL::exit;
+    my $orig_die  = $SIG{__DIE__};
+    my $orig_warn = $SIG{__WARN__};
 
     my $coderef = do {
         no warnings;
@@ -269,17 +273,19 @@ sub wrap_perl_cgi {
         # overridden CORE::GLOBAL::exit in view
         #
         # set $0 to the name of the cgi file in case it's used there
-        eval ' 
+        my $source = ' 
             my $cgi_exited = "EXIT\n";
             BEGIN { *CORE::GLOBAL::exit = sub (;$) {
                 die [ $cgi_exited, $_[0] || 0 ];
             } }
             package Catalyst::Controller::CGIBin::_CGIs_::'.$action_name.';
-            sub {'
-                . 'local *DATA;'
-                . q{open DATA, '<', \$data;}
-                . qq{local \$0 = "\Q$cgi\E";}
-                . q/my $rv = eval {/
+            sub {'."\n"
+                . 'local *DATA;'."\n"
+                . q{open DATA, '<', \$data;}."\n"
+                . qq{local \$0 = "\Q$cgi\E";}."\n"
+                . q/my $rv = eval {/."\n"
+                . 'local $SIG{__DIE__}  = $SIG{__DIE__}  || sub { die @_ };'."\n"
+                . 'local $SIG{__WARN__} = $SIG{__WARN__} || sub { warn @_ };'."\n"
                 . $code
                 . q/};/
                 . q{
@@ -292,11 +298,17 @@ sub wrap_perl_cgi {
                     return $rv;
                 }
          . '}';
+         eval $source;
     };
+
+    # clean up
+    *CORE::GLOBAL::exit = $orig_exit;
+    $SIG{__DIE__}       = $orig_die;
+    $SIG{__WARN__}      = $orig_warn;
 
     croak __PACKAGE__ . ": Could not compile $cgi to coderef: $@" if $@;
 
-    $coderef
+    return $coderef
 }
 
 =head2 wrap_nonperl_cgi
