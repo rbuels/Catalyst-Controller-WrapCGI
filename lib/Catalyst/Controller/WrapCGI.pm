@@ -351,16 +351,6 @@ Original development sponsored by L<http://www.altinity.com/>
 L<Catalyst::Controller::CGIBin>, L<CatalystX::GlobalContext>,
 L<Catalyst::Controller>, L<CGI>, L<Catalyst>
 
-=head1 AUTHOR
-
-Matt S. Trout, C<< <mst at shadowcat.co.uk> >>
-
-=head1 CONTRIBUTORS
-
-Rafael Kitover C<< <rkitover at cpan.org> >>
-
-Hans Dieter Pearcey C<< <hdp at cpan.org> >>
-
 =head1 BUGS
 
 Please report any bugs or feature requests to C<bug-catalyst-controller-wrapcgi
@@ -393,9 +383,20 @@ L<http://search.cpan.org/dist/Catalyst-Controller-WrapCGI>
 
 =back
 
+=head1 AUTHOR
+
+Matt S. Trout C<< <mst at shadowcat.co.uk> >>
+
+=head1 CONTRIBUTORS
+
+Rafael Kitover C<< <rkitover at cpan.org> >>
+
+Hans Dieter Pearcey C<< <hdp at cpan.org> >>
+
 =head1 COPYRIGHT & LICENSE
 
-Copyright (c) 2008 Matt S. Trout
+Copyright (c) 2008-2009 L<Catalyst::Controller::WrapCGI/AUTHOR> and
+L<Catalyst::Controller::WrapCGI/CONTRIBUTORS>.
 
 This program is free software; you can redistribute it and/or modify it
 under the same terms as Perl itself.

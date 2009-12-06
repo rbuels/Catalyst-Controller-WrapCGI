@@ -21,7 +21,7 @@ is($response->content, 'foo:bar bar:baz', 'POST to CGI');
 $response = request POST '/cgi-bin/test.cgi', [
   foo => 'bar',
   bar => 'baz',
-], 'Content-Type' => 'form-data';
+], User_Agent => 'perl/5', Content_Type => 'form-data';
 
 is($response->content, 'foo:bar bar:baz', 'POST to CGI (form-data)');
 
@@ -38,12 +38,13 @@ $response = request POST '/cgi-bin/test.cgi',
     ],
     quux => [ undef, quux => Content => 4 ],
   ],
-  'Content-Type' => 'form-data';
+  User_Agent => 'perl/5',
+  Content_Type => 'form-data';
 
 is($response->content, 'foo:1 bar:2 baz:3 quux:4', 'POST with file upload');
 
 $response = request '/cgi-bin/test_pathinfo.cgi/path/%2Finfo';
-is($response->content, '/path/%2Finfo', 'PATH_INFO is correct');
+is($response->content, '/path//info', 'PATH_INFO is correct');
 
 $response = request '/cgi-bin/test_filepathinfo.cgi/path/%2Finfo';
 is($response->content, '/test_filepath_info/path/%2Finfo',

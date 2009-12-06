@@ -228,8 +228,10 @@ sub is_perl_cgi {
     open STDERR, '>&', \*NULL;
     close STDIN;
 
-    do $cgi;
+    eval { $self->wrap_perl_cgi($cgi, '__DUMMY__') };
+
     IO::File->new(">$tempfile")->print($@);
+
     exit;
 }
 
@@ -324,14 +326,6 @@ __PACKAGE__->meta->make_immutable;
 L<Catalyst::Controller::WrapCGI>, L<CatalystX::GlobalContext>,
 L<Catalyst::Controller>, L<CGI>, L<Catalyst>
 
-=head1 AUTHOR
-
-Rafael Kitover, C<< <rkitover at cpan.org> >>
-
-=head1 CONTRIBUTORS
-
-Hans Dieter Pearcey, C<< <hdp at cpan.org> >>
-
 =head1 BUGS
 
 Please report any bugs or feature requests to C<bug-catalyst-controller-wrapcgi at
@@ -364,9 +358,15 @@ L<http://search.cpan.org/dist/Catalyst-Controller-WrapCGI>
 
 =back
 
+=head1 AUTHOR
+
+See L<Catalyst::Controller::WrapCGI/AUTHOR> and
+L<Catalyst::Controller::WrapCGI/CONTRIBUTORS>.
+
 =head1 COPYRIGHT & LICENSE
 
-Copyright (c) 2008 Rafael Kitover
+Copyright (c) 2008-2009 L<Catalyst::Controller::WrapCGI/AUTHOR> and
+L<Catalyst::Controller::WrapCGI/CONTRIBUTORS>.
 
 This program is free software; you can redistribute it and/or modify it
 under the same terms as Perl itself.

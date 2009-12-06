@@ -77,10 +77,6 @@ sub set_context {
 L<Catalyst::Controller::CGIBin>, L<Catalyst::Controller::WrapCGI>,
 L<Catalyst>
 
-=head1 AUTHOR
-
-Rafael Kitover, C<< <rkitover at cpan.org> >>
-
 =head1 BUGS
 
 Please report any bugs or feature requests to C<bug-catalyst-controller-wrapcgi
@@ -113,9 +109,15 @@ L<http://search.cpan.org/dist/Catalyst-Controller-WrapCGI>
 
 =back
 
+=head1 AUTHOR
+
+See L<Catalyst::Controller::WrapCGI/AUTHOR> and
+L<Catalyst::Controller::WrapCGI/CONTRIBUTORS>.
+
 =head1 COPYRIGHT & LICENSE
 
-Copyright (c) 2008 Rafael Kitover
+Copyright (c) 2008-2009 L<Catalyst::Controller::WrapCGI/AUTHOR> and
+L<Catalyst::Controller::WrapCGI/CONTRIBUTORS>.
 
 This program is free software; you can redistribute it and/or modify it
 under the same terms as Perl itself.
