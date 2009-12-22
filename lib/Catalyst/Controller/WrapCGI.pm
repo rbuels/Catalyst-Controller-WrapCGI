@@ -21,11 +21,11 @@ Catalyst::Controller::WrapCGI - Run CGIs in Catalyst
 
 =head1 VERSION
 
-Version 0.023
+Version 0.024
 
 =cut
 
-our $VERSION = '0.023';
+our $VERSION = '0.024';
 
 =head1 SYNOPSIS
 
@@ -143,8 +143,6 @@ C<< $self->wrap_cgi($c, $coderef) >>
 Runs C<$coderef> in a CGI environment using L<HTTP::Request::AsCGI>, returns an
 L<HTTP::Response>.
 
-C<$coderef> is passed the Controller instance, and C<$c>.
-
 The CGI environment is set up based on C<$c>.
 
 The environment variables to pass on are taken from the configuration for your
@@ -235,7 +233,7 @@ sub wrap_cgi {
     my $saved_error;
 
     $env->setup;
-    eval { $call->($self, $c) };
+    eval { $call->() };
     $saved_error = $@;
     $env->restore;
 

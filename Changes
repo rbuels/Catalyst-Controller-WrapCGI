@@ -1,5 +1,9 @@
 Revision history for Catalyst-Controller-WrapCGI
 
+0.024  2009-12-22 01:13:01
+    - revert passing args to coderefs (some CGIs might implicitly shift off
+     @ARGV .)
+
 0.023  2009-12-22 00:41:10
     - some code stole from CGI::Compile (until we can dep on it)
         - correct line numbers for CGIs
