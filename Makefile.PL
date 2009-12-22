@@ -6,6 +6,8 @@ author   'Matt S. Trout <mst@shadowcat.co.uk>';
 
 requires 'Catalyst' => '5.80015';
 requires 'HTTP::Request::AsCGI' => '0.8';;
+#requires 'CGI::Compile' => '0.06';
+requires 'File::pushd';
 requires 'File::Find::Rule';
 requires 'List::MoreUtils';
 requires 'File::Slurp';
@@ -19,7 +21,7 @@ requires 'Moose';
 test_requires 'Catalyst::Plugin::Static::Simple';
 test_requires 'CGI';
 
-build_requires 'Test::More' => '0.86';
+build_requires 'Test::More' => '0.92';
 
 auto_provides;
 auto_install;

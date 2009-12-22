@@ -14,12 +14,6 @@ sub cgi_path {
     return "my-bin/$cgi";
 }
 
-# try out a forward
-sub dongs : Local Args(0) {
-    my ($self, $c) = @_;
-    $c->forward('/cgihandler/CGI_path__test_pl');
-}
-
 # try resolved forward
 sub mtfnpy : Local Args(0) {
     my ($self, $c) = @_;

@@ -13,8 +13,9 @@ use IPC::Open3;
 use Symbol 'gensym';
 use List::MoreUtils 'any';
 use IO::File ();
-use Carp;
 use File::Temp 'tempfile';
+use File::pushd;
+#use CGI::Compile;
  
 use namespace::clean -except => 'meta';
 
@@ -24,11 +25,11 @@ Catalyst::Controller::CGIBin - Serve CGIs from root/cgi-bin
 
 =head1 VERSION
 
-Version 0.022
+Version 0.023
 
 =cut
 
-our $VERSION = '0.022';
+our $VERSION = '0.023';
 
 =head1 SYNOPSIS
 
@@ -152,27 +153,17 @@ sub register_actions {
 C<< $self->cgi_action($cgi) >>
 
 Takes a path to a CGI from C<root/cgi-bin> such as C<foo/bar.cgi> and returns
-the action name it is registered as. See L</DESCRIPTION> for a discussion on how
-CGI actions are named.
-
-A path such as C<root/cgi-bin/hlagh/bar.cgi> will get the private path
-C<foo/CGI_hlagh__bar_cgi>, for controller Foo, with the C</>s converted to C<__>
-and prepended with C<CGI_>, as well as all non-word characters converted to
-C<_>s. This is because L<Catalyst> action names can't have non-word characters
-in them.
-
-This means that C<foo/bar.cgi> and C<foo__bar.cgi> for example will both map to
-the action C<CGI_foo__bar_cgi> so B<DON'T DO THAT>.
+the action name it is registered as.
 
 =cut
 
 sub cgi_action {
     my ($self, $cgi) = @_;
 
-    my $action_name = 'CGI_' . join '__' => split '/' => $cgi;
-    $action_name    =~ s/\W/_/g;
+    my $action_name = 'CGI_' . $cgi;
+    $action_name =~ s/([^A-Za-z0-9_])/sprintf("_%2x", unpack("C", $1))/eg;
 
-    $action_name
+    return $action_name;
 }
 
 =head2 cgi_path
@@ -258,13 +249,13 @@ sub wrap_perl_cgi {
     my ($self, $cgi, $action_name) = @_;
 
     my $code = slurp $cgi;
+    my $dir  = File::Basename::dirname($cgi);
 
     $code =~ s/^__DATA__\n(.*)//ms;
     my $data = $1;
 
     my $orig_exit = \*CORE::GLOBAL::exit;
-    my $orig_die  = $SIG{__DIE__};
-    my $orig_warn = $SIG{__WARN__};
+    my %orig_sig  = %SIG;
 
     my $coderef = do {
         no warnings;
@@ -282,11 +273,14 @@ sub wrap_perl_cgi {
             sub {'."\n"
                 . 'local *DATA;'."\n"
                 . q{open DATA, '<', \$data;}."\n"
-                . qq{local \$0 = "\Q$cgi\E";}."\n"
+                . qq{local \$0 = '$cgi';}."\n"
+                . "my \$_dir = File::pushd::pushd '$dir';"."\n"
+                . "CGI::initialize_globals() "."\n"
+                . "    if defined &CGI::initialize_globals;"."\n"
                 . q/my $rv = eval {/."\n"
-                . 'local $SIG{__DIE__}  = $SIG{__DIE__}  || sub { die @_ };'."\n"
-                . 'local $SIG{__WARN__} = $SIG{__WARN__} || sub { warn @_ };'."\n"
-                . $code
+                . 'local %SIG;'."\n"
+                . "#line 1 $cgi"."\n"
+                . $code."\n"
                 . q/};/
                 . q{
                     return $rv unless $@;
@@ -303,13 +297,21 @@ sub wrap_perl_cgi {
 
     # clean up
     *CORE::GLOBAL::exit = $orig_exit;
-    $SIG{__DIE__}       = $orig_die;
-    $SIG{__WARN__}      = $orig_warn;
+    %SIG = %orig_sig;
 
-    croak __PACKAGE__ . ": Could not compile $cgi to coderef: $@" if $@;
+    die "Could not compile $cgi to coderef: $@" if $@;
 
-    return $coderef
+    return $coderef;
 }
+
+# Once CGI::Compile is updated, we can use this:
+
+#sub wrap_perl_cgi {
+#    my ($self, $cgi, $action_name) = @_;
+#
+#    return CGI::Compile->compile($cgi,
+#        "Catalyst::Controller::CGIBin::_CGIs_::$action_name");
+#}
 
 =head2 wrap_nonperl_cgi
 
@@ -336,7 +338,7 @@ __PACKAGE__->meta->make_immutable;
 =head1 SEE ALSO
 
 L<Catalyst::Controller::WrapCGI>, L<CatalystX::GlobalContext>,
-L<Catalyst::Controller>, L<CGI>, L<Catalyst>
+L<Catalyst::Controller>, L<CGI>, L<CGI::Compile>, L<Catalyst>
 
 =head1 BUGS
 

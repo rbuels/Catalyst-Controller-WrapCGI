@@ -1,5 +1,6 @@
 package Catalyst::Controller::WrapCGI;
 
+use 5.008_001;
 use Moose;
 use mro 'c3';
 
@@ -20,11 +21,11 @@ Catalyst::Controller::WrapCGI - Run CGIs in Catalyst
 
 =head1 VERSION
 
-Version 0.022
+Version 0.023
 
 =cut
 
-our $VERSION = '0.022';
+our $VERSION = '0.023';
 
 =head1 SYNOPSIS
 
@@ -139,8 +140,10 @@ sub cgi_to_response {
 
 C<< $self->wrap_cgi($c, $coderef) >>
 
-Runs $coderef in a CGI environment using L<HTTP::Request::AsCGI>, returns an
+Runs C<$coderef> in a CGI environment using L<HTTP::Request::AsCGI>, returns an
 L<HTTP::Response>.
+
+C<$coderef> is passed the Controller instance, and C<$c>.
 
 The CGI environment is set up based on C<$c>.
 
@@ -232,7 +235,7 @@ sub wrap_cgi {
     my $saved_error;
 
     $env->setup;
-    eval { $call->() };
+    eval { $call->($self, $c) };
     $saved_error = $@;
     $env->restore;
 

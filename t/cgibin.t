@@ -6,8 +6,7 @@ use warnings;
 use FindBin '$Bin';
 use lib "$Bin/lib";
 
-use Test::More tests => 9;
-
+use Test::More;
 use Catalyst::Test 'TestCGIBin';
 use HTTP::Request::Common;
 
@@ -39,14 +38,6 @@ $response = request POST '/my-bin/exit.pl', [
 
 is($response->code, 500, 'POST to Perl CGI with nonzero exit()');
 
-$response = request POST '/cgihandler/dongs', [
-    foo => 'bar',
-    bar => 'baz'
-];
-
-is($response->content, 'foo:bar bar:baz',
-    'POST to Perl CGI File through a forward');
-
 $response = request POST '/cgihandler/mtfnpy', [
     foo => 'bar',
     bar => 'baz'
@@ -63,6 +54,12 @@ $response = request '/my-bin/pathinfo.pl/path/info';
 is($response->content, '/path/info',
     'PATH_INFO works');
 
+my %orig_sig = %SIG;
+
+ok request '/my-bin/sigs.pl';
+
+is_deeply \%SIG, \%orig_sig, '%SIG is preserved';
+
 SKIP: {
     skip "Can't run shell scripts on non-*nix", 1
         if $^O eq 'MSWin32' || $^O eq 'VMS';
@@ -72,3 +69,5 @@ SKIP: {
 
     is(get('/my-bin/test.sh'), "Hello!\n", 'Non-Perl CGI File');
 }
+
+done_testing;

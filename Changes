@@ -1,5 +1,12 @@
 Revision history for Catalyst-Controller-WrapCGI
 
+0.023  2009-12-22 00:41:10
+    - some code stole from CGI::Compile (until we can dep on it)
+        - correct line numbers for CGIs
+        - CGI::initialize_globals() called
+        - better CGI path to action name mapping
+    - coderefs are passed ($controller, $context)
+
 0.022  2009-12-06 05:18:08
     - handle scripts that override $SIG{__DIE__} and $SIG{__WARN__}
 
