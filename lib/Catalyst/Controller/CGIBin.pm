@@ -25,11 +25,11 @@ Catalyst::Controller::CGIBin - Serve CGIs from root/cgi-bin
 
 =head1 VERSION
 
-Version 0.024
+Version 0.025
 
 =cut
 
-our $VERSION = '0.024';
+our $VERSION = '0.025';
 
 =head1 SYNOPSIS
 
@@ -278,7 +278,7 @@ sub wrap_perl_cgi {
                 . "CGI::initialize_globals() "."\n"
                 . "    if defined &CGI::initialize_globals;"."\n"
                 . q/my $rv = eval {/."\n"
-                . 'local %SIG;'."\n"
+                . 'local *SIG = +{ %SIG };'."\n"
                 . "#line 1 $cgi"."\n"
                 . $code."\n"
                 . q/};/

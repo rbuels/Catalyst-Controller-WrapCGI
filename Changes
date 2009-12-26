@@ -1,5 +1,8 @@
 Revision history for Catalyst-Controller-WrapCGI
 
+0.025  2009-12-26 16:43:50
+    - fix %SIG localization in CGIBin
+
 0.024  2009-12-22 01:13:01
     - revert passing args to coderefs (some CGIs might implicitly shift off
      @ARGV .)
