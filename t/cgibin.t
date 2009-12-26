@@ -7,11 +7,18 @@ use FindBin '$Bin';
 use lib "$Bin/lib";
 
 use Test::More;
-use Catalyst::Test 'TestCGIBin';
 use HTTP::Request::Common;
+
+my %orig_sig;
+BEGIN { %orig_sig = %SIG; }
+
+use Catalyst::Test 'TestCGIBin';
 
 # this should be ignored
 $ENV{MOD_PERL} = "mod_perl/2.0";
+
+is_deeply \%SIG, \%orig_sig, '%SIG is preserved on compile';
+%SIG = %orig_sig;
 
 my $response = request POST '/my-bin/path/test.pl', [
     foo => 'bar',
@@ -53,8 +60,6 @@ is($response->content, "testing\n",
 $response = request '/my-bin/pathinfo.pl/path/info';
 is($response->content, '/path/info',
     'PATH_INFO works');
-
-my %orig_sig = %SIG;
 
 ok request '/my-bin/sigs.pl';
 
