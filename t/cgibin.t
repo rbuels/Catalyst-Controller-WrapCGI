@@ -71,8 +71,12 @@ SKIP: {
 
 # for some reason the +x is not preserved in the dist
     system "chmod +x $Bin/lib/TestCGIBin/root/cgi-bin/test.sh";
+    system "chmod +x $Bin/lib/TestCGIBin/root/cgi-bin/exit_nonzero.sh";
 
     is(get('/my-bin/test.sh'), "Hello!\n", 'Non-Perl CGI File');
+
+    $response = request GET '/my-bin/exit_nonzero.sh';
+    is $response->code, 500, 'Non-Perl CGI with non-zero exit dies';
 }
 
 done_testing;

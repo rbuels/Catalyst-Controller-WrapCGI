@@ -1,5 +1,9 @@
 Revision history for Catalyst-Controller-WrapCGI
 
+0.026  2010-01-03 11:37:15
+    - convert to CGI::Compile
+    - check exit status of non-Perl CGIs
+
 0.025  2009-12-26 16:43:50
     - fix %SIG localization in CGIBin
 

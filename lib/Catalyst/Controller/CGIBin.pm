@@ -5,7 +5,6 @@ use mro 'c3';
 
 extends 'Catalyst::Controller::WrapCGI';
 
-use File::Slurp 'slurp';
 use File::Find::Rule ();
 use Catalyst::Exception ();
 use File::Spec::Functions qw/splitdir abs2rel/;
@@ -15,7 +14,7 @@ use List::MoreUtils 'any';
 use IO::File ();
 use File::Temp 'tempfile';
 use File::pushd;
-#use CGI::Compile;
+use CGI::Compile;
  
 use namespace::clean -except => 'meta';
 
@@ -25,11 +24,11 @@ Catalyst::Controller::CGIBin - Serve CGIs from root/cgi-bin
 
 =head1 VERSION
 
-Version 0.025
+Version 0.026
 
 =cut
 
-our $VERSION = '0.025';
+our $VERSION = '0.026';
 
 =head1 SYNOPSIS
 
@@ -231,7 +230,7 @@ sub is_perl_cgi {
 C<< $self->wrap_perl_cgi($path, $action_name) >>
 
 Takes the path to a Perl CGI and returns a coderef suitable for passing to
-cgi_to_response (from L<Catalyst::Controller::WrapCGI>.)
+cgi_to_response (from L<Catalyst::Controller::WrapCGI>) using L<CGI::Compile>.
 
 C<$action_name> is the generated name for the action representing the CGI file
 from C<cgi_action>.
@@ -248,70 +247,9 @@ C<exit()>.
 sub wrap_perl_cgi {
     my ($self, $cgi, $action_name) = @_;
 
-    my $code = slurp $cgi;
-    my $dir  = File::Basename::dirname($cgi);
-
-    $code =~ s/^__DATA__\n(.*)//ms;
-    my $data = $1;
-
-    my $orig_exit = \*CORE::GLOBAL::exit;
-    my %orig_sig  = %SIG;
-
-    my $coderef = do {
-        no warnings;
-        # catch exit() and turn it into (effectively) a return
-        # we *must* eval STRING because the code needs to be compiled with the
-        # overridden CORE::GLOBAL::exit in view
-        #
-        # set $0 to the name of the cgi file in case it's used there
-        my $source = ' 
-            my $cgi_exited = "EXIT\n";
-            BEGIN { *CORE::GLOBAL::exit = sub (;$) {
-                die [ $cgi_exited, $_[0] || 0 ];
-            } }
-            package Catalyst::Controller::CGIBin::_CGIs_::'.$action_name.';
-            sub {'."\n"
-                . 'local *DATA;'."\n"
-                . q{open DATA, '<', \$data;}."\n"
-                . qq{local \$0 = '$cgi';}."\n"
-                . "my \$_dir = File::pushd::pushd '$dir';"."\n"
-                . "CGI::initialize_globals() "."\n"
-                . "    if defined &CGI::initialize_globals;"."\n"
-                . q/my $rv = eval {/."\n"
-                . 'local *SIG = +{ %SIG };'."\n"
-                . "#line 1 $cgi"."\n"
-                . $code."\n"
-                . q/};/
-                . q{
-                    return $rv unless $@;
-                    die $@ if $@ and not (
-                      ref($@) eq 'ARRAY' and
-                      $@->[0] eq $cgi_exited
-                    );
-                    die "exited nonzero: $@->[1]" if $@->[1] != 0;
-                    return $rv;
-                }
-         . '}';
-         eval $source;
-    };
-
-    # clean up
-    *CORE::GLOBAL::exit = $orig_exit;
-    %SIG = %orig_sig;
-
-    die "Could not compile $cgi to coderef: $@" if $@;
-
-    return $coderef;
+    return CGI::Compile->compile($cgi,
+        "Catalyst::Controller::CGIBin::_CGIs_::$action_name");
 }
-
-# Once CGI::Compile is updated, we can use this:
-
-#sub wrap_perl_cgi {
-#    my ($self, $cgi, $action_name) = @_;
-#
-#    return CGI::Compile->compile($cgi,
-#        "Catalyst::Controller::CGIBin::_CGIs_::$action_name");
-#}
 
 =head2 wrap_nonperl_cgi
 
@@ -321,7 +259,7 @@ Takes the path to a non-Perl CGI and returns a coderef for executing it.
 
 C<$action_name> is the generated name for the action representing the CGI file.
 
-By default returns:
+By default returns something like:
 
     sub { system $path }
 
@@ -330,7 +268,24 @@ By default returns:
 sub wrap_nonperl_cgi {
     my ($self, $cgi, $action_name) = @_;
 
-    sub { system $cgi }
+    return sub {
+        system $cgi;
+
+        if ($? == -1) {
+            die "failed to execute CGI '$cgi': $!";
+        }
+        elsif ($? & 127) {
+            die sprintf "CGI '$cgi' died with signal %d, %s coredump",
+                ($? & 127),  ($? & 128) ? 'with' : 'without';
+        }
+        else {
+            my $exit_code = $? >> 8;
+
+            return 0 if $exit_code == 0;
+
+            die "CGI '$cgi' exited non-zero with: $exit_code";
+        }
+    };
 }
 
 __PACKAGE__->meta->make_immutable;

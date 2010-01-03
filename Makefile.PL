@@ -6,11 +6,10 @@ author   'Matt S. Trout <mst@shadowcat.co.uk>';
 
 requires 'Catalyst' => '5.80015';
 requires 'HTTP::Request::AsCGI' => '0.8';;
-#requires 'CGI::Compile' => '0.06';
+requires 'CGI::Compile' => '0.07';
 requires 'File::pushd';
 requires 'File::Find::Rule';
 requires 'List::MoreUtils';
-requires 'File::Slurp';
 requires 'URI' => '1.37';
 requires 'parent';
 requires 'namespace::clean';

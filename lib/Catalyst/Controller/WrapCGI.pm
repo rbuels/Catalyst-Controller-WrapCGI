@@ -21,11 +21,11 @@ Catalyst::Controller::WrapCGI - Run CGIs in Catalyst
 
 =head1 VERSION
 
-Version 0.025
+Version 0.026
 
 =cut
 
-our $VERSION = '0.025';
+our $VERSION = '0.026';
 
 =head1 SYNOPSIS
 
@@ -393,6 +393,8 @@ Matt S. Trout C<< <mst at shadowcat.co.uk> >>
 Rafael Kitover C<< <rkitover at cpan.org> >>
 
 Hans Dieter Pearcey C<< <hdp at cpan.org> >>
+
+Some code stolen from Tatsuhiko Miyagawa's L<CGI::Compile>.
 
 =head1 COPYRIGHT & LICENSE
 
