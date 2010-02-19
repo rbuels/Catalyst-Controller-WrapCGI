@@ -21,11 +21,11 @@ Catalyst::Controller::WrapCGI - Run CGIs in Catalyst
 
 =head1 VERSION
 
-Version 0.026
+Version 0.027
 
 =cut
 
-our $VERSION = '0.026';
+our $VERSION = '0.027';
 
 =head1 SYNOPSIS
 
@@ -197,8 +197,6 @@ sub wrap_cgi {
     }
   }
 
-  my $filtered_env = $self->_filtered_env(\%ENV);
-
   $req->content($body_content);
   $req->content_length(length($body_content));
 
@@ -217,7 +215,6 @@ sub wrap_cgi {
   my $env = HTTP::Request::AsCGI->new(
               $req,
               ($username ? (REMOTE_USER => $username) : ()),
-              %$filtered_env,
               PATH_INFO => $path_info,
 # eww, this is likely broken:
               FILEPATH_INFO => '/'.$c->action.$path_info,
@@ -231,6 +228,8 @@ sub wrap_cgi {
     my $old = select($REAL_STDOUT); # in case somebody just calls 'print'
 
     my $saved_error;
+
+    local %ENV = %{ $self->_filtered_env(\%ENV) };
 
     $env->setup;
     eval { $call->() };

@@ -1,5 +1,9 @@
 Revision history for Catalyst-Controller-WrapCGI
 
+0.027  2010-02-19 04:34:50
+    - fix tests for Perl < 5.8.9
+    - fix for HTTP::Request::AsCGI 1.2
+
 0.026  2010-01-03 11:37:15
     - convert to CGI::Compile
     - check exit status of non-Perl CGIs

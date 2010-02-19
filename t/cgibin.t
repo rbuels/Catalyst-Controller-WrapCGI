@@ -10,7 +10,12 @@ use Test::More;
 use HTTP::Request::Common;
 
 my %orig_sig;
-BEGIN { %orig_sig = %SIG; }
+BEGIN {
+    %orig_sig = %SIG;
+# perl < 5.8.9 won't set a %SIG entry to undef, it sets it to ''
+    %orig_sig = map { defined $_ ? $_ : '' } %orig_sig
+        if $] < 5.008009;
+}
 
 use Catalyst::Test 'TestCGIBin';
 
@@ -18,7 +23,6 @@ use Catalyst::Test 'TestCGIBin';
 $ENV{MOD_PERL} = "mod_perl/2.0";
 
 is_deeply \%SIG, \%orig_sig, '%SIG is preserved on compile';
-%SIG = %orig_sig;
 
 my $response = request POST '/my-bin/path/test.pl', [
     foo => 'bar',
