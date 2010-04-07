@@ -1,5 +1,6 @@
 Revision history for Catalyst-Controller-WrapCGI
 
+0.028  2010-04-07 17:51:38
     - added cgi_chain_root and cgi_file_pattern options for CGIBin
 
 0.027  2010-02-19 04:34:50

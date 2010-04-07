@@ -19,13 +19,9 @@ use namespace::clean -except => 'meta';
 
 Catalyst::Controller::WrapCGI - Run CGIs in Catalyst
 
-=head1 VERSION
-
-Version 0.027
-
 =cut
 
-our $VERSION = '0.027';
+our $VERSION = '0.028';
 
 =head1 SYNOPSIS
 
