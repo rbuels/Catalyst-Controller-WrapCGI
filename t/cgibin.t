@@ -49,6 +49,10 @@ $response = request POST '/my-bin/exit.pl', [
 
 is($response->code, 500, 'POST to Perl CGI with nonzero exit()');
 
+$response = request '/my-bin/ignored.cgi';
+
+is($response->code, 500, "file not matching 'cgi_file_pattern' is ignored");
+
 $response = request POST '/cgihandler/mtfnpy', [
     foo => 'bar',
     bar => 'baz'
