@@ -4,6 +4,9 @@ name     'Catalyst-Controller-WrapCGI';
 all_from 'lib/Catalyst/Controller/WrapCGI.pm';
 author   'Matt S. Trout <mst@shadowcat.co.uk>';
 
+test_requires 'Catalyst::Plugin::Static::Simple';
+test_requires 'CGI';
+
 requires 'Catalyst' => '5.80015';
 requires 'HTTP::Request::AsCGI' => '1.2';
 requires 'CGI::Compile' => '0.07';
@@ -16,9 +19,6 @@ requires 'namespace::clean';
 requires 'Task::Weaken';
 requires 'LWP';
 requires 'Moose';
-
-test_requires 'Catalyst::Plugin::Static::Simple';
-test_requires 'CGI';
 
 build_requires 'Test::More' => '0.92';
 

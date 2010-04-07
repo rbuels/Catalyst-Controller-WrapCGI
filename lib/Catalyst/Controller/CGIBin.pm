@@ -41,8 +41,9 @@ In your controller:
 In your .conf:
 
     <Controller::Foo>
-        cgi_root_path cgi-bin
-        cgi_dir       cgi-bin
+        cgi_root_path  cgi-bin
+        cgi_dir        cgi-bin
+        cgi_chain_root /optional/private/path/to/Chained/root
         <CGI>
             username_field username # used for REMOTE_USER env var
             pass_env PERL5LIB
@@ -69,6 +70,19 @@ module for other configuration information.
 
 The global URI path prefix for CGIs, defaults to C<cgi-bin>.
 
+=head2 cgi_chain_root
+
+By default L<Path|Catalyst::DispatchType::Path> actions are created for CGIs,
+but if you specify this option, the actions will be created as
+L<Chained|Catalyst::DispatchType::Chained> end-points, chaining off the
+specified private path.
+
+If this option is used, the L</cgi_root_path> option is ignored. The root path
+will be determined by your chain.
+
+The L<PathPart|Catalyst::DispatchType::Chained/PathPart> of the action will be
+the path to the CGI file.
+
 =head2 cgi_dir
 
 Path from which to read CGI files. Can be relative to C<$MYAPP_HOME/root> or
@@ -76,8 +90,9 @@ absolute.  Defaults to C<$MYAPP_HOME/root/cgi-bin>.
 
 =cut
 
-has cgi_root_path => (is => 'ro', isa => 'Str', default => 'cgi-bin');
-has cgi_dir       => (is => 'ro', isa => 'Str', default => 'cgi-bin');
+has cgi_root_path  => (is => 'ro', isa => 'Str', default => 'cgi-bin');
+has cgi_chain_root => (is => 'ro', isa => 'Str');
+has cgi_dir        => (is => 'ro', isa => 'Str', default => 'cgi-bin');
 
 sub register_actions {
     my ($self, $app) = @_;
@@ -98,9 +113,16 @@ sub register_actions {
 
         my $path        = join '/' => splitdir($cgi_path);
         my $action_name = $self->cgi_action($path);
-        my $public_path = $self->cgi_path($path);
         my $reverse     = $namespace ? "$namespace/$action_name" : $action_name;
-        my $attrs       = { Path => [ $public_path ] };
+
+        my $attrs = do {
+            if (my $chain_root = $self->cgi_chain_root) {
+                { Chained => [ $chain_root ], PathPart => [ $path ], Args => [] };
+            }
+            else {
+                { Path => [ $self->cgi_path($path) ] };
+            }
+        };
 
         my ($cgi, $type);
 

@@ -1,5 +1,7 @@
 Revision history for Catalyst-Controller-WrapCGI
 
+    - added cgi_chain_root option for CGIBin
+
 0.027  2010-02-19 04:34:50
     - fix tests for Perl < 5.8.9
     - fix for HTTP::Request::AsCGI 1.2
