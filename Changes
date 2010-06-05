@@ -1,5 +1,8 @@
 Revision history for Catalyst-Controller-WrapCGI
 
+0.029  2010-06-05 21:12:47
+    - update tests for new HTTP::Request::AsCGI
+
 0.028  2010-04-07 17:51:38
     - added cgi_chain_root and cgi_file_pattern options for CGIBin
 

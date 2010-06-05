@@ -47,8 +47,8 @@ $response = request '/cgi-bin/test_pathinfo.cgi/path/%2Finfo';
 is($response->content, '/path//info', 'PATH_INFO is correct');
 
 $response = request '/cgi-bin/test_filepathinfo.cgi/path/%2Finfo';
-is($response->content, '/test_filepath_info/path/%2Finfo',
-    'FILEPATH_INFO is correct (maybe)');
+is($response->content, '/test_filepath_info/path//info',
+    'FILEPATH_INFO is correct');
 
 $response = request '/cgi-bin/mtfnpy/test_scriptname.cgi/foo/bar';
 is($response->content, '/cgi-bin/mtfnpy/test_scriptname.cgi',
