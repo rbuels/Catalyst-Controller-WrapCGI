@@ -7,7 +7,7 @@ __PACKAGE__->config({
     Controller::CGIHandler => {
         cgi_root_path => 'cgi',
         cgi_dir => 'cgi',
-        cgi_set_globals => { 'context' => '$c' },
+        cgi_set_globals => { '$c' => 'CONTEXT' },
     }
 });
 

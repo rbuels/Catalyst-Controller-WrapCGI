@@ -14,4 +14,7 @@ my $response = get '/cgi/globals.pl';
 
 like( $response, qr/c:TestCGIBinRoot=/, 'globals were set');
 
+$response = get '/cgi/globals.pl';
+like( $response, qr/c:TestCGIBinRoot=/, 'globals were set');
+
 done_testing;

@@ -15,6 +15,7 @@ use IO::File ();
 use File::Temp 'tempfile';
 use File::pushd;
 use CGI::Compile;
+use Scalar::Util ();
 
 use namespace::clean -except => 'meta';
 
@@ -157,7 +158,7 @@ sub register_actions {
 
         my $code = sub {
             my ($controller, $context) = @_;
-            $controller->_set_cgi_globals( $context, $path );
+            $controller->_set_all_globals( $context, $action_name );
             $controller->cgi_to_response(  $context, $cgi  );
         };
 
@@ -186,27 +187,25 @@ sub register_actions {
     }
 }
 
-sub _set_cgi_globals {
-    my ( $self, $context, $cgi ) = @_;
+sub _set_all_globals {
+    my ( $self, $context, $action_name ) = @_;
 
     return unless $self->cgi_set_globals;
 
     my $globals = $self->cgi_set_globals;
     my %global_values = (
-        'context' => $context,
+        'CONTEXT' => $context,
        );
 
-    my $cgi_package = $self->cgi_package( $cgi );
+    my $cgi_package = $self->cgi_package( $action_name );
 
-    while( my ( $desc, $var_name ) = each %$globals ) {
-        die __PACKAGE__."doesn't know how to set global $desc => '$var_name'"
-            unless exists $global_values{$desc};
-
-        $self->_set_global( $cgi_package, $var_name, $global_values{$desc} );
+    while( my ( $var_name, $val ) = each %$globals ) {
+        $val = exists $global_values{$val} ? $global_values{$val} : $val;
+        $self->_set_global( $context, $cgi_package, $var_name, \$val );
     }
 }
 sub _set_global {
-    my ( $self, $package, $sym, $val ) = @_;
+    my ( $self, $context, $package, $sym, $val ) = @_;
 
     $sym =~ s/(\W+)//;
     my $type = $1;
@@ -214,8 +213,19 @@ sub _set_global {
     my $target = "$package\::$sym";
 
     no strict 'refs';
-    #warn "setting \$ $target = $val";
-    $$target = $val;
+    if(    $type eq '$' ) {
+        $$target = $$val;
+        Scalar::Util::weaken $$target;
+    }
+    elsif( $type eq '@' ) {
+        @$target = @$val;
+    }
+    elsif( $type eq '%' ) {
+        %$target = %$val;
+    }
+    else {
+        die "don't know how to set $type globals";
+    }
 }
 
 
@@ -241,17 +251,17 @@ sub cgi_action {
 
 =head2 cgi_package
 
-C<< $self->cgi_package($cgi) >>
+C<< $self->cgi_package($action_name) >>
 
-Takes a path to a CGI from C<root/cgi-bin> such as C<foo/bar.cgi> and returns
-the Perl package name it is compiled into.
+Takes the action name for a CGI, returns the package name for the
+compiled CGI for that action.
 
 =cut
 
 sub cgi_package {
-    my ($self, $cgi) = @_;
+    my ($self, $action_name) = @_;
 
-    return "Catalyst::Controller::CGIBin::_CGIs_::".$self->cgi_action( $cgi );
+    return "Catalyst::Controller::CGIBin::_CGIs_::$action_name";
 }
 
 =head2 cgi_path
