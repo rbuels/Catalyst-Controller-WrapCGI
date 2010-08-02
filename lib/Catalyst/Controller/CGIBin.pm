@@ -97,10 +97,11 @@ Can be an array of globs/regexes as well.
 
 =cut
 
-has cgi_root_path    => (is => 'ro', isa => 'Str', default => 'cgi-bin');
-has cgi_chain_root   => (is => 'ro', isa => 'Str');
-has cgi_dir          => (is => 'ro', isa => 'Str', default => 'cgi-bin');
-has cgi_file_pattern => (is => 'rw', default => sub { ['*'] });
+has cgi_root_path      => (is => 'ro', isa => 'Str', default => 'cgi-bin');
+has cgi_chain_root     => (is => 'ro', isa => 'Str');
+has cgi_dir            => (is => 'ro', isa => 'Str', default => 'cgi-bin');
+has cgi_file_pattern   => (is => 'rw', default => sub { ['*'] });
+has cgi_set_globals => (is => 'ro');
 
 sub register_actions {
     my ($self, $app) = @_;
@@ -156,7 +157,8 @@ sub register_actions {
 
         my $code = sub {
             my ($controller, $context) = @_;
-            $controller->cgi_to_response($context, $cgi)
+            $controller->_set_cgi_globals( $context, $path );
+            $controller->cgi_to_response(  $context, $cgi  );
         };
 
         my $action = $self->create_action(
@@ -183,6 +185,39 @@ sub register_actions {
         }
     }
 }
+
+sub _set_cgi_globals {
+    my ( $self, $context, $cgi ) = @_;
+
+    return unless $self->cgi_set_globals;
+
+    my $globals = $self->cgi_set_globals;
+    my %global_values = (
+        'context' => $context,
+       );
+
+    my $cgi_package = $self->cgi_package( $cgi );
+
+    while( my ( $desc, $var_name ) = each %$globals ) {
+        die __PACKAGE__."doesn't know how to set global $desc => '$var_name'"
+            unless exists $global_values{$desc};
+
+        $self->_set_global( $cgi_package, $var_name, $global_values{$desc} );
+    }
+}
+sub _set_global {
+    my ( $self, $package, $sym, $val ) = @_;
+
+    $sym =~ s/(\W+)//;
+    my $type = $1;
+
+    my $target = "$package\::$sym";
+
+    no strict 'refs';
+    #warn "setting \$ $target = $val";
+    $$target = $val;
+}
+
 
 =head1 METHODS
 
