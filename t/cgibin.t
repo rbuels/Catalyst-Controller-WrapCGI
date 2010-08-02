@@ -87,4 +87,10 @@ SKIP: {
     is $response->code, 500, 'Non-Perl CGI with non-zero exit dies';
 }
 
+{ $response = get('/my-bin/time.pl');
+  sleep 1;
+  my $response_2 =  get('/my-bin/time.pl');
+  isnt( $response, $response_2, 'cgis are getting invoked each time' );
+}
+
 done_testing;
