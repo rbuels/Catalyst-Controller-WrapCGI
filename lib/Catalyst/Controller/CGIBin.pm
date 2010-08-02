@@ -101,7 +101,7 @@ has cgi_root_path      => (is => 'ro', isa => 'Str', default => 'cgi-bin');
 has cgi_chain_root     => (is => 'ro', isa => 'Str');
 has cgi_dir            => (is => 'ro', isa => 'Str', default => 'cgi-bin');
 has cgi_file_pattern   => (is => 'rw', default => sub { ['*'] });
-has cgi_set_globals => (is => 'ro');
+has cgi_set_globals    => (is => 'ro');
 
 sub register_actions {
     my ($self, $app) = @_;
