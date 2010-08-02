@@ -7,12 +7,11 @@ use FindBin '$Bin';
 use lib "$Bin/lib";
 
 use Test::More;
-use HTTP::Request::Common;
 
 use Catalyst::Test 'TestCGIBinRoot';
 
-my $response = request POST '/cgi/globals.pl';
+my $response = get '/cgi/globals.pl';
 
-like( $response->content, qr/c:TestCGIBinRoot=/, 'globals were set');
+like( $response, qr/c:TestCGIBinRoot=/, 'globals were set');
 
 done_testing;
