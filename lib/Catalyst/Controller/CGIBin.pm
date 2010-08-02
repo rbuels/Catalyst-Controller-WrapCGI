@@ -15,7 +15,7 @@ use IO::File ();
 use File::Temp 'tempfile';
 use File::pushd;
 use CGI::Compile;
- 
+
 use namespace::clean -except => 'meta';
 
 =head1 NAME
@@ -204,6 +204,21 @@ sub cgi_action {
     return $action_name;
 }
 
+=head2 cgi_package
+
+C<< $self->cgi_package($cgi) >>
+
+Takes a path to a CGI from C<root/cgi-bin> such as C<foo/bar.cgi> and returns
+the Perl package name it is compiled into.
+
+=cut
+
+sub cgi_package {
+    my ($self, $cgi) = @_;
+
+    return "Catalyst::Controller::CGIBin::_CGIs_::".$self->cgi_action( $cgi );
+}
+
 =head2 cgi_path
 
 C<< $self->cgi_path($cgi) >>
@@ -286,8 +301,8 @@ C<exit()>.
 sub wrap_perl_cgi {
     my ($self, $cgi, $action_name) = @_;
 
-    return CGI::Compile->compile($cgi,
-        "Catalyst::Controller::CGIBin::_CGIs_::$action_name");
+    return CGI::Compile->compile( $cgi, $self->cgi_package( $action_name ) );
+
 }
 
 =head2 wrap_nonperl_cgi
