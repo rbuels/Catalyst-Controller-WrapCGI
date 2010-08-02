@@ -96,13 +96,39 @@ want to be loaded.
 
 Can be an array of globs/regexes as well.
 
+=head2 cgi_globals
+
+Variables to make available to compiled CGIs.  Off by default.  The
+special string C<CONTEXT> will be replaced by the current context
+object.
+
+Example:
+
+    <Controller::Foo>
+        cgi_dir          cgi-bin
+
+        <cgi_globals>
+           $c  CONTEXT
+        </cgi_globals>
+    </Controller>
+
+or
+
+  package MyApp::Controller::Foo;
+
+  __PACKAGE__->config->{cgi_globals} = {
+      '$c' => 'CONTEXT',
+      '%foo' => { something => 'else' },
+     },
+  };
+
 =cut
 
-has cgi_root_path      => (is => 'ro', isa => 'Str', default => 'cgi-bin');
-has cgi_chain_root     => (is => 'ro', isa => 'Str');
-has cgi_dir            => (is => 'ro', isa => 'Str', default => 'cgi-bin');
-has cgi_file_pattern   => (is => 'rw', default => sub { ['*'] });
-has cgi_set_globals    => (is => 'ro');
+has cgi_root_path    => (is => 'ro', isa => 'Str', default => 'cgi-bin');
+has cgi_chain_root   => (is => 'ro', isa => 'Str');
+has cgi_dir          => (is => 'ro', isa => 'Str', default => 'cgi-bin');
+has cgi_file_pattern => (is => 'rw', default => sub { ['*'] });
+has cgi_globals      => (is => 'ro', isa => 'HashRef' );
 
 sub register_actions {
     my ($self, $app) = @_;
@@ -190,9 +216,9 @@ sub register_actions {
 sub _set_all_globals {
     my ( $self, $context, $action_name ) = @_;
 
-    return unless $self->cgi_set_globals;
+    return unless $self->cgi_globals;
 
-    my $globals = $self->cgi_set_globals;
+    my $globals = $self->cgi_globals;
     my %global_values = (
         'CONTEXT' => $context,
        );
@@ -201,7 +227,7 @@ sub _set_all_globals {
 
     while( my ( $var_name, $val ) = each %$globals ) {
         $val = exists $global_values{$val} ? $global_values{$val} : $val;
-        $self->_set_global( $context, $cgi_package, $var_name, \$val );
+        $self->_set_global( $context, $cgi_package, $var_name, $val );
     }
 }
 sub _set_global {
@@ -214,7 +240,7 @@ sub _set_global {
 
     no strict 'refs';
     if(    $type eq '$' ) {
-        $$target = $$val;
+        $$target = $val;
         Scalar::Util::weaken $$target;
     }
     elsif( $type eq '@' ) {

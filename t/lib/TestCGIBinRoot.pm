@@ -7,7 +7,11 @@ __PACKAGE__->config({
     Controller::CGIHandler => {
         cgi_root_path => 'cgi',
         cgi_dir => 'cgi',
-        cgi_set_globals => { '$c' => 'CONTEXT' },
+        cgi_globals => {
+            '$c' => 'CONTEXT',
+            '%global_hash' => { zip => 'zee' },
+            '@global_array' => [qw[ noggin quux ]],
+        },
     }
 });
 
