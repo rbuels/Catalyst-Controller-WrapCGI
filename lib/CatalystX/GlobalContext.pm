@@ -23,12 +23,12 @@ our $VERSION = '0.029';
 
     use CatalystX::GlobalContext ();
 
-    sub auto {
+    sub auto : Private {
         my ($self, $c) = @_;
-        CatalystX::GlobalContext->set_context($c);        
+        CatalystX::GlobalContext->set_context($c);
         1;
     }
-    
+
     package Some::Other::Module;
 
     use CatalystX::GlobalContext '$c';
