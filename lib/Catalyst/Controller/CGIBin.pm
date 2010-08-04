@@ -100,7 +100,8 @@ Can be an array of globs/regexes as well.
 
 Variables to make available to compiled CGIs.  Off by default.  The
 special string C<CONTEXT> will be replaced by the current context
-object.
+object, and C<CONTROLLER> will be replaced by the controller handling
+the CGI (an instance of a subclass of this module).
 
 Example:
 
@@ -108,7 +109,8 @@ Example:
         cgi_dir          cgi-bin
 
         <cgi_globals>
-           $c  CONTEXT
+           $c          CONTEXT
+           $controller CONTROLLER
         </cgi_globals>
     </Controller>
 
@@ -117,7 +119,8 @@ or
   package MyApp::Controller::Foo;
 
   __PACKAGE__->config->{cgi_globals} = {
-      '$c' => 'CONTEXT',
+      '$c'          => 'CONTEXT',
+      '$controller' => 'CONTROLLER',
       '%foo' => { something => 'else' },
      },
   };
@@ -220,7 +223,8 @@ sub _set_all_globals {
 
     my $globals = $self->cgi_globals;
     my %global_values = (
-        'CONTEXT' => $context,
+        'CONTEXT'    => $context,
+        'CONTROLLER' => $self
        );
 
     my $cgi_package = $self->cgi_package( $action_name );
