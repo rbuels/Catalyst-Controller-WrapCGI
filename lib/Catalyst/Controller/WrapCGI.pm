@@ -9,7 +9,6 @@ extends 'Catalyst::Controller';
 use HTTP::Request::AsCGI ();
 use HTTP::Request ();
 use URI ();
-use Catalyst::Exception ();
 use URI::Escape;
 use HTTP::Request::Common;
 
@@ -234,9 +233,7 @@ sub wrap_cgi {
 
     select($old);
 
-    Catalyst::Exception->throw(
-        message => "CGI invocation failed: $saved_error"
-    ) if $saved_error;
+    die $saved_error if $saved_error;
   }
 
   return $env->response;
