@@ -6,6 +6,7 @@ use mro 'c3';
 
 extends 'Catalyst::Controller';
 
+use Catalyst::Exception ();
 use HTTP::Request::AsCGI ();
 use HTTP::Request ();
 use URI ();
@@ -233,7 +234,12 @@ sub wrap_cgi {
 
     select($old);
 
-    die $saved_error if $saved_error;
+    if( $saved_error ) {
+        die $saved_error if ref $saved_error;
+        Catalyst::Exception->throw(
+            message => "CGI invocation failed: $saved_error"
+           );
+    }
   }
 
   return $env->response;
