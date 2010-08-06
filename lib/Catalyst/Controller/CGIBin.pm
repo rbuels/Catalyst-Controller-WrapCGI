@@ -23,7 +23,7 @@ Catalyst::Controller::CGIBin - Serve CGIs from root/cgi-bin
 
 =cut
 
-our $VERSION = '0.029';
+our $VERSION = '0.030';
 
 =head1 SYNOPSIS
 

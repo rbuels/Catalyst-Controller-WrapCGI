@@ -1,5 +1,9 @@
 Revision history for Catalyst-Controller-WrapCGI
 
+0.030  2010-08-06 16:08:10
+    - rethrow non-scalar exceptions as-is
+    - minor doc fix
+
 0.029  2010-06-05 21:12:47
     - update tests for new HTTP::Request::AsCGI
 
