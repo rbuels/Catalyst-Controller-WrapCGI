@@ -104,9 +104,14 @@ has cgi_file_pattern => (is => 'rw', default => sub { ['*'] });
 sub register_actions {
     my ($self, $app) = @_;
 
-    my $cgi_bin = File::Spec->file_name_is_absolute($self->cgi_dir) ?
-        $self->cgi_dir
-        : $app->path_to('root', $self->cgi_dir);
+    my $cgi_bin;
+    if( File::Spec->file_name_is_absolute($self->cgi_dir) ) {
+        $cgi_bin = $self->cgi_dir;
+    } elsif( File::Spec->file_name_is_absolute( $app->config->{root} ) ) {
+        $cgi_bin = File::Spec->catdir( $app->config->{root}, $self->cgi_dir );
+    } else {
+        $cgi_bin = $app->path_to( $app->config->{root}, $self->cgi_dir);
+    }
 
     my $namespace = $self->action_namespace($app);
 
