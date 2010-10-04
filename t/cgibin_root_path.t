@@ -6,16 +6,34 @@ use warnings;
 use FindBin '$Bin';
 use lib "$Bin/lib";
 
-use Test::More tests => 1;
-
-use Catalyst::Test 'TestCGIBinRoot';
-use HTTP::Request::Common;
+use Test::More tests => 2;
 
 # Test configurable path root and dir
+{ package root_test;
 
-my $response = request POST '/cgi/path/test.pl', [
-    foo => 'bar',
-    bar => 'baz'
-];
+  use Test::More;
+  use HTTP::Request::Common;
+  use Catalyst::Test 'TestCGIBinRoot';
 
-is($response->content, 'foo:bar bar:baz', 'POST to Perl CGI File');
+    my $response = request POST '/cgi/path/test.pl', [
+        foo => 'bar',
+        bar => 'baz'
+       ];
+
+    is($response->content, 'foo:bar bar:baz', 'POST to Perl CGI File');
+}
+
+# test another variation on specifying the root path
+{ package another_root_test;
+
+  use Test::More;
+  use HTTP::Request::Common;
+  use Catalyst::Test 'TestCGIBinRoot2';
+
+  my $response = request POST '/cgi/path/test.pl', [
+      foo => 'bar',
+      bar => 'baz'
+     ];
+
+  is($response->content, 'foo:bar bar:baz', 'POST to Perl CGI File 2');
+}
