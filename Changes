@@ -1,5 +1,7 @@
 Revision history for Catalyst-Controller-WrapCGI
 
+    - fix CGIBin.pm bug hardcoding 'root' as the site root
+
 0.030  2010-08-06 16:08:10
     - rethrow non-scalar exceptions as-is
     - minor doc fix
