@@ -1,6 +1,7 @@
 package Catalyst::Controller::CGIBin;
 
 use Moose;
+use Moose::Util::TypeConstraints;
 use mro 'c3';
 
 extends 'Catalyst::Controller::WrapCGI';
@@ -14,7 +15,7 @@ use IO::File ();
 use File::Temp 'tempfile';
 use File::pushd;
 use CGI::Compile;
- 
+
 use namespace::clean -except => 'meta';
 
 =head1 NAME
@@ -96,10 +97,17 @@ Can be an array of globs/regexes as well.
 
 =cut
 
-has cgi_root_path    => (is => 'ro', isa => 'Str', default => 'cgi-bin');
-has cgi_chain_root   => (is => 'ro', isa => 'Str');
-has cgi_dir          => (is => 'ro', isa => 'Str', default => 'cgi-bin');
-has cgi_file_pattern => (is => 'rw', default => sub { ['*'] });
+{ my $stringified = subtype as 'Str';
+  coerce $stringified,
+      from 'Object',
+      via { "$_" };
+
+  has cgi_root_path    => (is => 'ro', coerce => 1, isa => $stringified, default => 'cgi-bin' );
+  has cgi_chain_root   => (is => 'ro', isa => 'Str');
+  has cgi_dir          => (is => 'ro', coerce => 1, isa => $stringified, default => 'cgi-bin');
+  has cgi_file_pattern => (is => 'rw', default => sub { ['*'] });
+
+}
 
 sub register_actions {
     my ($self, $app) = @_;
